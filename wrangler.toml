@@ -1,0 +1,24 @@
+# Cloudflare Pages + D1 cho web Fashion Store
+# Deploy: npx @cloudflare/next-on-pages  (đọc file này để lấy binding D1)
+# KHÔNG đưa file này lên git cùng với secret — file này không chứa secret.
+
+name = "fashion-store"
+
+# Tài khoản Cloudflare dùng cho database + Pages này (Sonp38328).
+# Ghi rõ ở đây để wrangler không dùng nhầm sang tài khoản sofa-duy-ngoc.
+account_id = "c120cd2e0bd17f1db87175eb4bd38b59"
+
+compatibility_date = "2026-11-09"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".vercel/output/static"
+
+# Database D1 "fashion-store" — TAO MOI tren Cloudflare cua ban
+# (npx wrangler d1 create fashion-store), roi dien database_id
+# cua ban vao dong database_id ben duoi. Trong code, binding nay
+# xuat hien duoi ten env.DB (xem src/lib/prisma.ts). Nap bang bang
+# file fashion-store-d1-create.sql va du lieu mau bang file
+# fashion-store-d1-insert.sql trong D1 console cua Cloudflare.
+[[d1_databases]]
+binding = "DB"
+database_name = "fashion-store"
+database_id = "7bb826cd-b540-4744-b9fe-0b316b378782"
