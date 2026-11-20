@@ -1,4 +1,3 @@
-"use client";
 /* Phân quyền nhân sự cho trang quản trị — đăng nhập đã xác thực phía
    server (tài khoản trong bảng users của D1, phiên cookie HttpOnly, xem
    src/context/AdminAuthContext.tsx và src/lib/auth.ts); các route
@@ -7,7 +6,12 @@
    của shop (/api/products, /api/orders, ...) vẫn chưa kiểm tra quyền —
    muốn khoá hẳn thì thêm kiểm tra phiên admin vào các route đó.
    Cách chặn thống nhất: tài khoản không có quyền vào một mục sẽ bị đưa về
-   /admin (xem AdminLayout); sidebar cũng ẩn luôn các mục đó. */
+   /admin (xem AdminLayout); sidebar cũng ẩn luôn các mục đó.
+   LƯU Ý: File này KHÔNG có "use client" — nó được dùng chung cho cả
+   client (sidebar, trang admin) và server (route /api/auth/login,
+   /api/auth/staff dùng ADMIN_ROLES). Thêm "use client" sẽ làm
+   ADMIN_ROLES không dùng được trong Edge Runtime và đăng nhập /admin
+   lỗi 500 (đã xảy ra 20/11/2026). */
 
 export type StaffRole = "admin" | "kho" | "cskh" | "bientap";
 export type AnyRole = StaffRole | "customer";
