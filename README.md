@@ -141,9 +141,13 @@ CREATE INDEX sessions_expires_at_idx ON sessions(expires_at);
 Then re-run `fashion-store-d1-insert.sql` (or re-seed) so the demo
 accounts get their new salted hashes and the admin row is created.
 
-Note: the admin "forgot password" page resets the password directly
-after entering the admin email — it does not send an email verification
-code. For a production store, replace it with an emailed reset token.
+Note: there is no "forgot password" reset flow for admin accounts —
+the unauthenticated reset endpoint was removed entirely. If an admin
+forgets their password, change it directly in the database (generate a
+new salt + hash with `node scripts/hash-password.cjs <new-password>` and
+UPDATE the users row), or reset it from another logged-in admin account
+in /admin/staff. While logged in, an admin changes their own password
+in Settings (change-password, which requires the current password).
 
 ## Project structure
 
@@ -152,7 +156,7 @@ code. For a production store, replace it with an emailed reset token.
   under `src/app/admin/`
 - `src/app/api/` — REST routes for products, orders, categories, posts,
   messages, subscribers, coupons, and `auth/` (register, login, logout,
-  me, change-password, reset-password, staff, customers)
+  me, change-password, staff, customers)
 - `src/components/` — `Header`, `Hero`, `ProductCard`, `CategoryGrid`,
   `BlogSection`, `Footer`, `CartDrawer`, `admin/` components
 - `src/context/` — `AuthContext` (shop accounts), `AdminAuthContext`

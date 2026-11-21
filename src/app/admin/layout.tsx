@@ -275,7 +275,6 @@ function AdminLogin() {
           </button>
         </div>
         <button className="bg-black text-white w-full py-3 tracking-[0.2em] text-sm hover:bg-neutral-800 transition-colors">ĐĂNG NHẬP</button>
-        <Link href="/admin/forgot-password" className="block text-center text-sm underline mt-4">Quên mật khẩu?</Link>
         <Link href="/" className="block text-center text-sm underline mt-5">← Về trang chủ shop</Link>
       </form>
     </div>
@@ -401,7 +400,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     setMobileOpen(false);
   }, [pathname]);
 
-  if (pathname === "/admin/forgot-password") return <>{children}</>;
   if (!checked) {
     return <div className="min-h-screen bg-[#171a21] text-white grid place-items-center">Đang tải trang quản trị…</div>;
   }

@@ -1,8 +1,6 @@
 # Cloudflare Pages + D1 cho web Fashion Store
 # Deploy: npx @cloudflare/next-on-pages  (đọc file này để lấy binding D1)
 # KHÔNG đưa file này lên git cùng với secret — file này không chứa secret.
-# LƯU Ý: Không thêm account_id vào file này — Cloudflare Pages KHÔNG hỗ trợ
-# account_id trong wrangler.toml, thêm vào sẽ làm build Pages lỗi.
 
 name = "fashion-store"
 compatibility_date = "2026-11-09"

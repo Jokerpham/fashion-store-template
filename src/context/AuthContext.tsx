@@ -23,7 +23,6 @@ type AuthCtx = {
   login: (identifier: string, password: string, remember: boolean) => Promise<Result>;
   logout: () => Promise<void>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<Result>;
-  resetPassword: (email: string, newPassword: string) => Promise<Result>;
   /* Quản lý nhân sự (trang /admin/staff, chỉ tài khoản admin): gọi API
      phía server, luật chặn (không đổi quyền/xoá tài khoản gốc, chỉ admin
      sửa SĐT) thực thi ở /api/auth/staff. */
@@ -114,15 +113,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { ok: true };
   };
 
-  const resetPassword: AuthCtx["resetPassword"] = async (email, newPassword) => {
-    const { error } = await callAuth("/api/auth/reset-password", {
-      method: "POST",
-      body: JSON.stringify({ email, newPassword }),
-    });
-    if (error) return { ok: false, error };
-    return { ok: true };
-  };
-
   const listStaff: AuthCtx["listStaff"] = async () => {
     const { data } = await callAuth("/api/auth/staff");
     return Array.isArray(data) ? (data as StaffRow[]) : [];
@@ -178,7 +168,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <Ctx.Provider
-      value={{ user, loading, register, login, logout, changePassword, resetPassword, listStaff, createStaff, updateStaff, deleteStaff }}
+      value={{ user, loading, register, login, logout, changePassword, listStaff, createStaff, updateStaff, deleteStaff }}
     >
       {children}
     </Ctx.Provider>
