@@ -1,10 +1,11 @@
 "use client";
 /* Menu thả xuống chọn ngôn ngữ (v7) — dùng chung cho header shop, header
    admin và màn hình đăng nhập admin. Liệt kê 134 ngôn ngữ (cờ + tên
-   bản ngữ + tên tiếng Anh), có ô tìm kiếm lọc theo mã, tên tiếng Anh
-   hoặc tên bản ngữ. `dark` để chữ sáng khi đặt trên nền tối (sidebar
-   admin). Bấm ra ngoài hoặc phím Escape để đóng. Cờ là file SVG tự
-   chứa ở public/flags/ (xem src/components/FlagIcon.tsx). */
+   tiếng Anh), có ô tìm kiếm lọc theo mã, tên tiếng Anh hoặc tên bản ngữ.
+   Mỗi dòng chỉ hiện MỘT tên (tên tiếng Anh, chữ thường, không in đậm).
+   `dark` để chữ sáng khi đặt trên nền tối (sidebar admin). Bấm ra ngoài
+   hoặc phím Escape để đóng. Cờ là file SVG tự chứa ở public/flags/
+   (xem src/components/FlagIcon.tsx). */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import { LANGUAGES, getLanguage } from "@/lib/i18n";
@@ -102,17 +103,12 @@ export default function LanguageSwitcher({ dark = false }: { dark?: boolean }) {
                 <button
                   type="button"
                   onClick={() => pick(l.code)}
-                  className={`flex w-full cursor-pointer items-center justify-between gap-2 px-3 py-1.5 text-left text-xs hover:bg-neutral-100 ${
-                    l.code === lang ? "font-bold text-black" : ""
+                  className={`flex w-full cursor-pointer items-center gap-2 px-3 py-1.5 text-left text-xs font-normal text-neutral-800 hover:bg-neutral-100 ${
+                    l.code === lang ? "bg-neutral-100 text-black" : ""
                   }`}
                 >
-                  <span className="flex min-w-0 items-center gap-2">
-                    <FlagIcon flag={l.flag} />
-                    <span className="truncate">{l.native}</span>
-                  </span>
-                  <span className="shrink-0 text-[10px] text-neutral-400">
-                    {l.name}
-                  </span>
+                  <FlagIcon flag={l.flag} />
+                  <span className="truncate">{l.name}</span>
                 </button>
               </li>
             ))}
