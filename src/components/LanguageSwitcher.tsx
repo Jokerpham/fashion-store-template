@@ -1,12 +1,14 @@
 "use client";
 /* Menu thả xuống chọn ngôn ngữ (v7) — dùng chung cho header shop, header
-   admin và màn hình đăng nhập admin. Liệt kê 134 ngôn ngữ (tên bản ngữ
-   + tên tiếng Anh), có ô tìm kiếm lọc theo mã, tên tiếng Anh hoặc tên
-   bản ngữ. `dark` để chữ sáng khi đặt trên nền tối (sidebar admin).
-   Bấm ra ngoài hoặc phím Escape để đóng. */
+   admin và màn hình đăng nhập admin. Liệt kê 134 ngôn ngữ (cờ + tên
+   bản ngữ + tên tiếng Anh), có ô tìm kiếm lọc theo mã, tên tiếng Anh
+   hoặc tên bản ngữ. `dark` để chữ sáng khi đặt trên nền tối (sidebar
+   admin). Bấm ra ngoài hoặc phím Escape để đóng. Cờ là file SVG tự
+   chứa ở public/flags/ (xem src/components/FlagIcon.tsx). */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import { LANGUAGES, getLanguage } from "@/lib/i18n";
+import FlagIcon from "./FlagIcon";
 
 export default function LanguageSwitcher({ dark = false }: { dark?: boolean }) {
   const { lang, setLang, t, loading } = useLanguage();
@@ -64,6 +66,7 @@ export default function LanguageSwitcher({ dark = false }: { dark?: boolean }) {
         aria-label={t("language.name")}
         className={`flex cursor-pointer items-center gap-1.5 text-[11px] tracking-[0.14em] font-heading ${btnCls}`}
       >
+        <FlagIcon flag={current.flag} />
         <span className={loading ? "opacity-60" : ""}>{current.native}</span>
         <span
           aria-hidden="true"
@@ -103,7 +106,10 @@ export default function LanguageSwitcher({ dark = false }: { dark?: boolean }) {
                     l.code === lang ? "font-bold text-black" : ""
                   }`}
                 >
-                  <span className="truncate">{l.native}</span>
+                  <span className="flex min-w-0 items-center gap-2">
+                    <FlagIcon flag={l.flag} />
+                    <span className="truncate">{l.native}</span>
+                  </span>
                   <span className="shrink-0 text-[10px] text-neutral-400">
                     {l.name}
                   </span>

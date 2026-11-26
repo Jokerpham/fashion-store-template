@@ -266,6 +266,17 @@ flow are unchanged.
   Pashto, Sindhi, Uyghur, Yiddish, Divehi, Central Kurdish) the
   `<html>` element gets `dir="rtl"` (and `lang` is always set), so the
   layout mirrors. Other languages use `dir="ltr"`.
+- **Flags:** every language shows its flag on the switcher button and
+  on every dropdown item. Flags are self-contained SVG files in
+  `public/flags/<country>.svg` (from flagcdn), rendered by
+  `src/components/FlagIcon.tsx` as plain `<img>` — NOT emoji flags,
+  because Chrome on Windows shows flag emojis as two-letter codes
+  (e.g. "US") instead of flag images. Each entry in `LANGUAGES` has a
+  `flag` field (ISO country code, e.g. `us`, `vn`, `cn`) or `"globe"`
+  for languages with no country flag (Esperanto, Latin, Kurdish,
+  Quechua, Central Kurdish — `public/flags/globe.svg`). To change a
+  flag, edit the `flag` field and drop the matching SVG into
+  `public/flags/`.
 - **Product names / descriptions:** the `products` table has `name_en`
   and `description_en` columns (added in v6). English is shown for
   every non-Vietnamese language, falling back to the Vietnamese value
