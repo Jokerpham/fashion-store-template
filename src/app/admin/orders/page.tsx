@@ -20,6 +20,8 @@ import { formatPrice } from "@/lib/format";
 
 const STATUSES: Order["status"][] = [
   "Chờ xác nhận",
+  "Chờ thanh toán",
+  "Đã thanh toán",
   "Đang chuẩn bị hàng",
   "Đang giao",
   "Đã giao",

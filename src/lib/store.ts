@@ -19,7 +19,7 @@ export type Order = {
   items: OrderItem[];
   total: number;
   payment: string;
-  status: "Chờ xác nhận" | "Đang chuẩn bị hàng" | "Đang giao" | "Đã giao" | "Đã hủy" | "Hoàn trả";
+  status: "Chờ xác nhận" | "Chờ thanh toán" | "Đã thanh toán" | "Đang chuẩn bị hàng" | "Đang giao" | "Đã giao" | "Đã hủy" | "Hoàn trả";
   note?: string;
 };
 export type ContactMessage = {

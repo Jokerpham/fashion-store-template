@@ -153,6 +153,22 @@ CREATE TABLE IF NOT EXISTS "newsletter_subscribers" (
     "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Thanh toán online (PayOS / SePay / PayPal / Stripe, xem src/lib/payments).
+-- Một đơn chỉ có một bản ghi payments (order_code duy nhất).
+CREATE TABLE IF NOT EXISTS "payments" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "order_code" TEXT NOT NULL,
+    "gateway" TEXT NOT NULL,
+    "gateway_ref" TEXT,
+    "amount" INTEGER NOT NULL DEFAULT 0,
+    "currency" TEXT NOT NULL DEFAULT 'VND',
+    "status" TEXT NOT NULL DEFAULT 'pending',
+    "raw_payload" TEXT,
+    "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" DATETIME NOT NULL,
+    CONSTRAINT "payments_order_code_key" UNIQUE ("order_code")
+);
+
 CREATE UNIQUE INDEX IF NOT EXISTS "users_email_key" ON "users"("email");
 CREATE INDEX IF NOT EXISTS "sessions_user_id_idx" ON "sessions"("user_id");
 CREATE INDEX IF NOT EXISTS "sessions_expires_at_idx" ON "sessions"("expires_at");
@@ -170,3 +186,5 @@ CREATE UNIQUE INDEX IF NOT EXISTS "posts_slug_key" ON "posts"("slug");
 CREATE INDEX IF NOT EXISTS "posts_category_idx" ON "posts"("category");
 CREATE INDEX IF NOT EXISTS "message_replies_message_id_idx" ON "message_replies"("message_id");
 CREATE UNIQUE INDEX IF NOT EXISTS "newsletter_subscribers_email_key" ON "newsletter_subscribers"("email");
+CREATE UNIQUE INDEX IF NOT EXISTS "payments_order_code_key" ON "payments"("order_code");
+CREATE INDEX IF NOT EXISTS "payments_gateway_gateway_ref_idx" ON "payments"("gateway", "gateway_ref");

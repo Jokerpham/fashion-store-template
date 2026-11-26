@@ -21,6 +21,8 @@ export const CATEGORY_LABELS: Record<string, string> = {
 
 const STATUS_TO_DB: Record<Order["status"], string> = {
   "Chờ xác nhận": "pending",
+  "Chờ thanh toán": "awaiting_payment",
+  "Đã thanh toán": "paid",
   "Đang chuẩn bị hàng": "preparing",
   "Đang giao": "shipping",
   "Đã giao": "done",
@@ -30,6 +32,8 @@ const STATUS_TO_DB: Record<Order["status"], string> = {
 const STATUS_FROM_DB: Record<string, Order["status"]> = {
   pending: "Chờ xác nhận",
   confirmed: "Chờ xác nhận",
+  awaiting_payment: "Chờ thanh toán",
+  paid: "Đã thanh toán",
   preparing: "Đang chuẩn bị hàng",
   shipping: "Đang giao",
   done: "Đã giao",
@@ -44,11 +48,19 @@ export function toAppStatus(status: string): Order["status"] {
   return STATUS_FROM_DB[status] ?? "Chờ xác nhận";
 }
 export function toDbPayment(payment: string): string {
+  if (/payos/i.test(payment)) return "payos";
+  if (/sepay/i.test(payment)) return "sepay";
+  if (/paypal/i.test(payment)) return "paypal";
+  if (/stripe/i.test(payment)) return "stripe";
   if (/momo/i.test(payment)) return "momo";
   if (/chuyển khoản|bank/i.test(payment)) return "bank";
   return "cod";
 }
 export function toAppPayment(method: string): string {
+  if (method === "payos") return "PayOS — VietQR / ATM / ví";
+  if (method === "sepay") return "SePay — VietQR chuyển khoản";
+  if (method === "paypal") return "PayPal (USD)";
+  if (method === "stripe") return "Stripe — Thẻ quốc tế";
   if (method === "momo") return "Ví MoMo / ZaloPay";
   if (method === "bank") return "Chuyển khoản ngân hàng";
   return "COD - Thanh toán khi nhận hàng";

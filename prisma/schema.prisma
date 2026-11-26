@@ -171,6 +171,30 @@ model OrderItem {
   @@map("order_items")
 }
 
+/* Một lần thanh toán online gắn với một đơn hàng (xem src/lib/payments/).
+   orderCode duy nhất: mỗi đơn chỉ có một bản ghi thanh toán đang theo dõi.
+   status: pending (đã tạo link/QR, chờ khách trả), paid (cổng báo đã trả),
+   failed (hủy / thất bại), simulated (trả thử ở chế độ giả lập, không có
+   tiền thật). gatewayRef lưu mã phía cổng (PayOS orderCode số, PayPal order
+   id, Stripe session id, nội dung chuyển khoản SePay) để đối chiếu webhook.
+   rawPayload lưu JSON gốc trả về từ cổng (link checkout, QR...) để gọi lại
+   create cho cùng đơn không tạo phiên mới. */
+model Payment {
+  id         Int      @id @default(autoincrement())
+  orderCode  String   @unique @map("order_code")
+  gateway    String
+  gatewayRef String?  @map("gateway_ref")
+  amount     Int      @default(0)
+  currency   String   @default("VND")
+  status     String   @default("pending")
+  rawPayload String?  @map("raw_payload")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@index([gateway, gatewayRef])
+  @@map("payments")
+}
+
 model Post {
   id          Int      @id @default(autoincrement())
   title       String
