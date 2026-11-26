@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getAdminEmail, scheduleEmail, sendNewOrderEmail } from "@/lib/email";
 import { toAppOrder, toDbPayment, toDbStatus } from "@/lib/db-map";
 
 export const dynamic = "force-dynamic";
@@ -51,5 +52,13 @@ export async function POST(req: Request) {
     },
     include: { items: true },
   });
-  return NextResponse.json(toAppOrder(created), { status: 201 });
+  /* Email báo admin có đơn mới (v6): gửi nền, lỗi/không cấu hình key thì
+     bỏ qua — đặt hàng không bao giờ hỏng vì email. */
+  const appOrder = toAppOrder(created);
+  scheduleEmail(
+    getAdminEmail(prisma).then((adminEmail) =>
+      sendNewOrderEmail(appOrder, adminEmail),
+    ),
+  );
+  return NextResponse.json(appOrder, { status: 201 });
 }

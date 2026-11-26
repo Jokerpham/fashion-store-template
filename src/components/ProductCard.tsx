@@ -5,6 +5,8 @@ import Image from "next/image";
 import type { Product } from "@/data/products";
 import { formatPrice } from "@/lib/format";
 import { useCart } from "@/context/CartContext";
+import { useLanguage } from "@/context/LanguageContext";
+import { productName, productDescription, categoryLabel } from "@/lib/i18n";
 
 /* 3 icon tròn đen như ảnh mẫu: giỏ hàng / yêu thích / xem nhanh */
 const CartIcon = () => (
@@ -31,6 +33,8 @@ const circleBtn =
 
 export default function ProductCard({ product }: { product: Product }) {
   const { add } = useCart();
+  const { lang, t } = useLanguage();
+  const name = productName(product, lang);
   const [liked, setLiked] = useState(false);
   const [quickView, setQuickView] = useState(false);
   const [touched, setTouched] = useState(false);
@@ -46,10 +50,10 @@ export default function ProductCard({ product }: { product: Product }) {
         className="relative bg-[#f5f5f5] aspect-[4/5] overflow-hidden"
         onTouchStart={() => setTouched(true)}
       >
-        <Link href={`/product/${product.slug}`} aria-label={product.name}>
+        <Link href={`/product/${product.slug}`} aria-label={name}>
           <Image
             src={product.image}
-            alt={product.name}
+            alt={name}
             fill
             className="object-cover group-hover:scale-105 transition duration-500"
           />
@@ -67,8 +71,8 @@ export default function ProductCard({ product }: { product: Product }) {
         >
           <button
             type="button"
-            aria-label={`Thêm ${product.name} vào giỏ hàng`}
-            title="Thêm vào giỏ hàng"
+            aria-label={t("product.addToCartAria", { name })}
+            title={t("product.addToCart")}
             onClick={(e) => {
               e.preventDefault();
               add(product);
@@ -79,9 +83,9 @@ export default function ProductCard({ product }: { product: Product }) {
           </button>
           <button
             type="button"
-            aria-label={liked ? `Bỏ yêu thích ${product.name}` : `Yêu thích ${product.name}`}
+            aria-label={liked ? t("product.unfavoriteAria", { name }) : t("product.favoriteAria", { name })}
             aria-pressed={liked}
-            title="Yêu thích"
+            title={t("product.favorite")}
             onClick={(e) => {
               e.preventDefault();
               setLiked((v) => !v);
@@ -92,8 +96,8 @@ export default function ProductCard({ product }: { product: Product }) {
           </button>
           <button
             type="button"
-            aria-label={`Xem nhanh ${product.name}`}
-            title="Xem nhanh"
+            aria-label={t("product.quickViewAria", { name })}
+            title={t("product.quickView")}
             onClick={(e) => {
               e.preventDefault();
               setQuickView(true);
@@ -106,7 +110,7 @@ export default function ProductCard({ product }: { product: Product }) {
       </div>
 
       <Link href={`/product/${product.slug}`} className="block mt-4 text-sm text-neutral-700 hover:text-black">
-        {product.name}
+        {name}
       </Link>
       <p className="mt-1 text-[13px] font-semibold">
         {formatPrice(product.price)}
@@ -117,22 +121,22 @@ export default function ProductCard({ product }: { product: Product }) {
 
       {/* Popup Xem nhanh khi bấm icon con mắt */}
       {quickView && (
-        <div className="fixed inset-0 z-[60] grid place-items-center p-4" role="dialog" aria-modal="true" aria-label={`Xem nhanh ${product.name}`}>
+        <div className="fixed inset-0 z-[60] grid place-items-center p-4" role="dialog" aria-modal="true" aria-label={t("product.quickViewAria", { name })}>
           <div className="absolute inset-0 bg-black/50" onClick={() => setQuickView(false)} />
           <div className="relative bg-white w-full max-w-2xl grid md:grid-cols-2 text-left shadow-2xl">
             <div className="relative aspect-[4/5] md:aspect-auto md:min-h-[380px] bg-[#f5f5f5]">
-              <Image src={product.image} alt={product.name} fill className="object-cover" />
+              <Image src={product.image} alt={name} fill className="object-cover" />
             </div>
             <div className="p-7">
               <button
                 onClick={() => setQuickView(false)}
-                aria-label="Đóng xem nhanh"
+                aria-label={t("product.closeQuickView")}
                 className="absolute top-3 right-4 text-3xl leading-none text-neutral-500 hover:text-black"
               >
                 ×
               </button>
-              <p className="text-[11px] tracking-[0.3em] text-neutral-400 uppercase">{product.category}</p>
-              <h3 className="text-2xl font-light mt-2">{product.name}</h3>
+              <p className="text-[11px] tracking-[0.3em] text-neutral-400 uppercase">{categoryLabel(product.category, lang)}</p>
+              <h3 className="text-2xl font-light mt-2">{name}</h3>
               <p className="text-lg font-semibold mt-3">
                 {formatPrice(product.price)}
                 {product.oldPrice && (
@@ -141,7 +145,7 @@ export default function ProductCard({ product }: { product: Product }) {
                   </span>
                 )}
               </p>
-              <p className="text-sm text-neutral-600 leading-relaxed mt-4">{product.description}</p>
+              <p className="text-sm text-neutral-600 leading-relaxed mt-4">{productDescription(product, lang)}</p>
               <p className="text-sm mt-5">
                 Size: <span className="font-medium">{product.sizes.join(", ")}</span>
               </p>
@@ -152,13 +156,13 @@ export default function ProductCard({ product }: { product: Product }) {
                 }}
                 className="w-full bg-[#171a21] text-white py-3.5 mt-6 text-sm tracking-[0.2em]"
               >
-                THÊM VÀO GIỎ HÀNG
+                {t("product.quickViewAdd")}
               </button>
               <Link
                 href={`/product/${product.slug}`}
                 className="block text-center text-sm underline underline-offset-4 mt-4"
               >
-                Xem chi tiết sản phẩm
+                {t("product.viewDetails")}
               </Link>
             </div>
           </div>

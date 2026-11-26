@@ -2,11 +2,13 @@
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useLanguage } from "@/context/LanguageContext";
 
 /* Trang kết quả sau khi khách quay lại từ cổng thanh toán. KHÔNG tin tham
    số trên URL: gọi /api/payments/verify để hỏi lại cổng phía server rồi
    mới kết luận đã trả hay chưa. */
 function ResultInner() {
+  const { t } = useLanguage();
   const params = useSearchParams();
   const gateway = params.get("gateway") ?? "";
   const orderCode = params.get("order") ?? "";
@@ -22,7 +24,7 @@ function ResultInner() {
     }
     if (!orderCode) {
       setState("failed");
-      setMsg("Thiếu mã đơn hàng.");
+      setMsg(t("checkout.missingOrder"));
       return;
     }
     fetch("/api/payments/verify", {
@@ -45,53 +47,53 @@ function ResultInner() {
     <div className="container-x pt-16 pb-24 text-center max-w-xl mx-auto">
       {state === "loading" && (
         <>
-          <h1 className="text-2xl font-light">Đang xác nhận thanh toán...</h1>
-          <p className="text-neutral-500 mt-4">Đang hỏi lại cổng thanh toán, bạn chờ một chút.</p>
+          <h1 className="text-2xl font-light">{t("checkout.resultLoadingTitle")}</h1>
+          <p className="text-neutral-500 mt-4">{t("checkout.resultLoadingText")}</p>
         </>
       )}
       {state === "paid" && (
         <>
-          <h1 className="text-3xl font-light">Thanh toán thành công 🎉</h1>
+          <h1 className="text-3xl font-light">{t("checkout.resultPaidTitle")}</h1>
           <p className="text-neutral-500 mt-4">
-            Cảm ơn bạn đã mua sắm tại Fashion Store. Đơn hàng{" "}
-            <span className="font-medium text-black">{orderCode}</span> đã được
-            thanh toán và sẽ được chuẩn bị giao.
+            {t("checkout.resultPaidPrefix")}{" "}
+            <span className="font-medium text-black">{orderCode}</span>{" "}
+            {t("checkout.resultPaidSuffix")}
           </p>
           <Link href="/shop" className="inline-block mt-8 bg-[#23232c] text-white px-6 py-3 text-sm tracking-widest">
-            TIẾP TỤC MUA SẮM
+            {t("checkout.continueShopping")}
           </Link>
         </>
       )}
       {state === "pending" && (
         <>
-          <h1 className="text-2xl font-light">Đang chờ xác nhận thanh toán</h1>
+          <h1 className="text-2xl font-light">{t("checkout.resultPendingTitle")}</h1>
           <p className="text-neutral-500 mt-4">
-            {msg || "Cổng thanh toán chưa báo đã nhận tiền. Nếu bạn đã trả rồi, shop sẽ xác nhận sau khi nhận được tiền — bạn có thể kiểm tra lại đơn sau vài phút."}
+            {msg || t("checkout.resultPendingDefault")}
           </p>
-          <p className="text-neutral-500 mt-2 text-sm">Mã đơn: {orderCode}</p>
+          <p className="text-neutral-500 mt-2 text-sm">{t("checkout.resultOrderCode", { code: orderCode })}</p>
           <Link href="/" className="inline-block mt-8 bg-[#23232c] text-white px-6 py-3 text-sm tracking-widest">
-            VỀ TRANG CHỦ
+            {t("misc.backHome")}
           </Link>
         </>
       )}
       {state === "failed" && (
         <>
-          <h1 className="text-2xl font-light">Thanh toán chưa thành công</h1>
-          <p className="text-neutral-500 mt-4">{msg || "Giao dịch chưa hoàn tất. Bạn thử đặt lại đơn nhé."}</p>
+          <h1 className="text-2xl font-light">{t("checkout.resultFailedTitle")}</h1>
+          <p className="text-neutral-500 mt-4">{msg || t("checkout.resultFailedDefault")}</p>
           <Link href="/checkout" className="inline-block mt-8 bg-[#23232c] text-white px-6 py-3 text-sm tracking-widest">
-            THỬ LẠI THANH TOÁN
+            {t("checkout.tryPaymentAgain")}
           </Link>
         </>
       )}
       {state === "cancelled" && (
         <>
-          <h1 className="text-2xl font-light">Bạn đã hủy thanh toán</h1>
+          <h1 className="text-2xl font-light">{t("checkout.resultCancelledTitle")}</h1>
           <p className="text-neutral-500 mt-4">
-            Đơn hàng {orderCode} chưa được thanh toán. Bạn có thể quay lại
-            thanh toán bất cứ lúc nào.
+            {t("checkout.resultCancelledPrefix")} {orderCode}{" "}
+            {t("checkout.resultCancelledSuffix")}
           </p>
           <Link href="/checkout" className="inline-block mt-8 bg-[#23232c] text-white px-6 py-3 text-sm tracking-widest">
-            QUAY LẠI THANH TOÁN
+            {t("checkout.backToCheckout")}
           </Link>
         </>
       )}

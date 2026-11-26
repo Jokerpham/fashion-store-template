@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { pushSubscriber } from "@/lib/store";
+import { useLanguage } from "@/context/LanguageContext";
 
 /* Icon đặc (solid) giống hệt bản gốc: ghim địa chỉ, phong bì, điện thoại */
 const PinIcon = () => (
@@ -21,6 +22,7 @@ const PhoneIcon = () => (
 );
 
 export default function Footer() {
+  const { t } = useLanguage();
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
 
@@ -36,13 +38,13 @@ export default function Footer() {
         />
         <div className="absolute inset-0 bg-[#9fd0e2]/60" />
         <div className="relative container-x text-center py-20 md:py-24">
-          <p className="text-[22px] font-light text-neutral-800">Ưu đãi đặc biệt</p>
+          <p className="text-[22px] font-light text-neutral-800">{t("footer.promoEyebrow")}</p>
           <h2 className="mt-4 text-[30px] md:text-[40px] leading-snug font-bold text-neutral-900 max-w-4xl mx-auto">
-            Nhận tư vấn miễn phí với các chuyên gia của Fashion Store
+            {t("footer.promoTitle")}
           </h2>
           {subscribed ? (
             <p className="mt-9 inline-block bg-white px-6 py-4 text-[15px] font-medium text-emerald-700">
-              Đăng ký thành công ✓ Fashion Store sẽ liên hệ tư vấn qua email {email}
+              {t("footer.subscribed", { email })}
             </p>
           ) : (
             <form
@@ -53,11 +55,11 @@ export default function Footer() {
                   await pushSubscriber(email.trim());
                   setSubscribed(true);
                 } catch {
-                  alert("Đăng ký chưa lưu được, bạn thử lại nhé.");
+                  alert(t("footer.subscribeError"));
                 }
               }}
             >
-              <label htmlFor="newsletter-email" className="sr-only">Email của bạn</label>
+              <label htmlFor="newsletter-email" className="sr-only">{t("footer.yourEmail")}</label>
               <input
                 id="newsletter-email"
                 type="email"
@@ -71,7 +73,7 @@ export default function Footer() {
                 type="submit"
                 className="bg-[#171a21] text-white px-7 md:px-9 text-[15px] font-semibold hover:bg-black transition"
               >
-                Đăng ký
+                {t("footer.subscribe")}
               </button>
             </form>
           )}
@@ -91,9 +93,9 @@ export default function Footer() {
             </span>
           </p>
           <p className="text-neutral-500 mt-7 leading-[1.9] text-[15px] max-w-[300px]">
-            Fashion Store là sự lựa chọn hoàn hảo cho Cửa hàng trực tuyến của bạn.
+            {t("footer.aboutText")}
           </p>
-          <p className="mt-7 flex items-center gap-6" aria-label="Mạng xã hội">
+          <p className="mt-7 flex items-center gap-6" aria-label={t("footer.social")}>
             <a href="#" aria-label="Facebook" className="opacity-90 hover:opacity-100 transition">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/images/site/icons/facebook.svg" alt="Facebook" className="h-[17px] w-auto" />
@@ -109,19 +111,19 @@ export default function Footer() {
           </p>
         </div>
 
-        <nav aria-label="Về chúng tôi">
-          <h4 className="text-[19px] font-semibold text-black mb-8">Về chúng tôi</h4>
+        <nav aria-label={t("footer.aboutTitle")}>
+          <h4 className="text-[19px] font-semibold text-black mb-8">{t("footer.aboutTitle")}</h4>
           <ul className="space-y-6 text-[15px] text-neutral-600">
-            <li><Link href="/blog" className="hover:text-black">Thông tin mới nhất</Link></li>
-            <li><a href="#" className="hover:text-black">Giải đáp</a></li>
-            <li><Link href="/contact" className="hover:text-black">Liên hệ</Link></li>
-            <li><Link href="/shop" className="hover:text-black">Cửa hàng</Link></li>
-            <li><Link href="/cuoi-tuan" className="hover:text-black">Cuối tuần này</Link></li>
+            <li><Link href="/blog" className="hover:text-black">{t("footer.latestNews")}</Link></li>
+            <li><a href="#" className="hover:text-black">{t("footer.faq")}</a></li>
+            <li><Link href="/contact" className="hover:text-black">{t("footer.contact")}</Link></li>
+            <li><Link href="/shop" className="hover:text-black">{t("footer.store")}</Link></li>
+            <li><Link href="/cuoi-tuan" className="hover:text-black">{t("footer.thisWeekend")}</Link></li>
           </ul>
         </nav>
 
-        <nav aria-label="Cửa hàng">
-          <h4 className="text-[19px] font-semibold text-black mb-8">Cửa hàng</h4>
+        <nav aria-label={t("footer.shopTitle")}>
+          <h4 className="text-[19px] font-semibold text-black mb-8">{t("footer.shopTitle")}</h4>
           <ul className="space-y-6 text-[15px] text-neutral-600">
             <li><Link href="/shop" className="hover:text-black">Accessories</Link></li>
             <li><Link href="/shop" className="hover:text-black">Bags</Link></li>
@@ -132,7 +134,7 @@ export default function Footer() {
         </nav>
 
         <div>
-          <h4 className="text-[19px] font-semibold text-black mb-8">Liên hệ</h4>
+          <h4 className="text-[19px] font-semibold text-black mb-8">{t("footer.contact")}</h4>
           <ul className="space-y-6 text-[15px] text-neutral-600">
             <li className="flex gap-3.5 text-[#2b2b2b]">
               <PinIcon />
@@ -154,12 +156,12 @@ export default function Footer() {
 
       {/* ===== Thanh bản quyền ===== */}
       <div className="relative bg-[#f1f1f1] text-center text-sm text-neutral-500 py-4 px-4">
-        © Thiết kế website và lập trình bởi{" "}
+        {t("footer.copyright")}{" "}
         <span className="font-bold text-neutral-700">Fashion Store</span>
         <span className="font-semibold text-[#8b2fe0]"> .Media / Website</span>
         {/* Nút về đầu trang - hình tròn góc phải như ảnh mẫu */}
         <button
-          aria-label="Về đầu trang"
+          aria-label={t("footer.backToTop")}
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           className="absolute right-5 -top-7 w-12 h-12 rounded-full border-2 border-black bg-white text-black text-lg grid place-items-center hover:bg-black hover:text-white transition"
         >

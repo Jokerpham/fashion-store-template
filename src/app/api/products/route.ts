@@ -40,8 +40,10 @@ export async function POST(req: Request) {
   const created = await prisma.product.create({
     data: {
       name,
+      nameEn: body.nameEn ? String(body.nameEn) : null,
       slug,
       description: String(body.description ?? ""),
+      descriptionEn: body.descriptionEn ? String(body.descriptionEn) : null,
       price,
       oldPrice: body.oldPrice ? Number(body.oldPrice) : null,
       tag: body.tag ? String(body.tag) : null,

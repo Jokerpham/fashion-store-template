@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useLanguage } from "@/context/LanguageContext";
 
 /* Trang "Coming soon" làm lại y hệt bản demo gốc (example.com/coming-soon):
    nửa trái là ảnh người mẫu váy lụa tím bên cửa sổ, nửa phải nền trắng gồm
@@ -43,6 +44,7 @@ const socials = [
 ];
 
 export default function ComingSoonPage() {
+  const { t } = useLanguage();
   const { d, h, m, s } = useCountdown();
   const units = [
     { value: d, label: "Days" },
@@ -96,7 +98,7 @@ export default function ComingSoonPage() {
             href="/"
             className="mt-12 bg-[#262626] text-white text-[15px] px-9 py-4 hover:bg-black transition"
           >
-            Quay lại trang chủ
+            {t("comingSoon.backHome")}
           </Link>
 
           {/* Mạng xã hội */}

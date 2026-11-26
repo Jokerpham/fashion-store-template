@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { scheduleEmail, sendWelcomeEmail } from "@/lib/email";
 import {
   createSession,
   hashPassword,
@@ -50,6 +51,9 @@ export async function POST(req: Request) {
   });
   const scope: SessionScope = "shop";
   const token = await createSession(user.id, scope, true);
+  /* Email chào mừng (v6): gửi nền, lỗi/không cấu hình key thì bỏ qua —
+     đăng ký không bao giờ hỏng vì email. */
+  scheduleEmail(sendWelcomeEmail({ name, email }));
   const res = NextResponse.json({ user: toAuthUser(user) }, { status: 201 });
   res.cookies.set("fashion_session", token, sessionCookieOptions(scope, true));
   return res;

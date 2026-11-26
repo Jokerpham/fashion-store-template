@@ -8,12 +8,13 @@ import {
   ADMIN_ROLES,
   canAccessSection,
   sectionForPath,
-  sidebarTitle,
   type AdminSection,
   type StaffRole,
 } from "@/lib/roles";
 import AdminBell from "@/components/admin/AdminBell";
 import AdminAvatar from "@/components/admin/AdminAvatar";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useLanguage } from "@/context/LanguageContext";
 
 /* Icon nét mảnh đơn sắc cho menu sidebar (khớp bản demo, không dùng emoji). */
 function MenuIcon({ children }: { children: ReactNode }) {
@@ -165,19 +166,19 @@ function CloseIcon() {
   );
 }
 
-const NAV: { href: string; label: string; icon: ReactNode; section: AdminSection }[] = [
-  { href: "/admin", label: "Tổng quan", icon: <GridIcon />, section: "dashboard" },
-  { href: "/admin/products", label: "Sản phẩm", icon: <BagIcon />, section: "products" },
-  { href: "/admin/categories", label: "Danh mục", icon: <LayersIcon />, section: "categories" },
-  { href: "/admin/orders", label: "Đơn hàng", icon: <DocIcon />, section: "orders" },
-  { href: "/admin/customers", label: "Khách hàng", icon: <UsersIcon />, section: "customers" },
-  { href: "/admin/staff", label: "Nhân sự", icon: <StaffIcon />, section: "staff" },
-  { href: "/admin/coupons", label: "Mã giảm giá", icon: <TagIcon />, section: "coupons" },
-  { href: "/admin/messages", label: "Tin nhắn liên hệ", icon: <MailIcon />, section: "messages" },
-  { href: "/admin/subscribers", label: "Email đăng ký", icon: <SendIcon />, section: "subscribers" },
-  { href: "/admin/reports", label: "Báo cáo doanh thu", icon: <ChartIcon />, section: "reports" },
-  { href: "/admin/activity", label: "Nhật ký hoạt động", icon: <ClockIcon />, section: "activity" },
-  { href: "/admin/settings", label: "Cài đặt & Bảo mật", icon: <GearIcon />, section: "settings" },
+const NAV: { href: string; labelKey: string; icon: ReactNode; section: AdminSection }[] = [
+  { href: "/admin", labelKey: "admin.sidebar.dashboard", icon: <GridIcon />, section: "dashboard" },
+  { href: "/admin/products", labelKey: "admin.sidebar.products", icon: <BagIcon />, section: "products" },
+  { href: "/admin/categories", labelKey: "admin.sidebar.categories", icon: <LayersIcon />, section: "categories" },
+  { href: "/admin/orders", labelKey: "admin.sidebar.orders", icon: <DocIcon />, section: "orders" },
+  { href: "/admin/customers", labelKey: "admin.sidebar.customers", icon: <UsersIcon />, section: "customers" },
+  { href: "/admin/staff", labelKey: "admin.sidebar.staff", icon: <StaffIcon />, section: "staff" },
+  { href: "/admin/coupons", labelKey: "admin.sidebar.coupons", icon: <TagIcon />, section: "coupons" },
+  { href: "/admin/messages", labelKey: "admin.sidebar.messages", icon: <MailIcon />, section: "messages" },
+  { href: "/admin/subscribers", labelKey: "admin.sidebar.subscribers", icon: <SendIcon />, section: "subscribers" },
+  { href: "/admin/reports", labelKey: "admin.sidebar.reports", icon: <ChartIcon />, section: "reports" },
+  { href: "/admin/activity", labelKey: "admin.sidebar.activity", icon: <ClockIcon />, section: "activity" },
+  { href: "/admin/settings", labelKey: "admin.sidebar.settings", icon: <GearIcon />, section: "settings" },
 ];
 
 function LogoutIcon() {
@@ -234,6 +235,7 @@ function EyeIcon({ open }: { open: boolean }) {
 }
 
 function AdminLogin() {
+  const { t } = useLanguage();
   const { adminLogin } = useAdminAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -247,35 +249,36 @@ function AdminLogin() {
     // được; tài khoản khách bị chặn. Không còn tài khoản ghi cứng trong code.
     const res = await adminLogin(email.trim(), password);
     if (!res.ok) {
-      setError(res.error || "Đăng nhập thất bại.");
+      setError(res.error || t("auth.loginFailed"));
       return;
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#171a21] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[#171a21] flex items-center justify-center px-4 relative">
+      <div className="absolute top-4 right-4"><LanguageSwitcher dark /></div>
       <form onSubmit={submit} className="bg-white w-full max-w-sm p-8 shadow-xl">
         <p className="text-center text-2xl tracking-[0.35em] font-light">Fashion Store</p>
-        <p className="text-center text-[10px] tracking-[0.5em] mt-1 text-neutral-500">FASHION — QUẢN TRỊ</p>
-        <h1 className="text-lg font-medium mt-8 mb-4">Đăng nhập quản trị</h1>
+        <p className="text-center text-[10px] tracking-[0.5em] mt-1 text-neutral-500">{t("admin.login.eyebrow")}</p>
+        <h1 className="text-lg font-medium mt-8 mb-4">{t("admin.login.title")}</h1>
         {error && <p className="bg-red-50 text-red-700 text-sm px-3 py-2 mb-4">{error}</p>}
         <label className="block text-sm mb-1">Email</label>
         <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="admin@store.local" className="border w-full px-3 py-2.5 mb-4 outline-none focus:border-black" />
-        <label className="block text-sm mb-1">Mật khẩu</label>
+        <label className="block text-sm mb-1">{t("admin.login.password")}</label>
         <div className="relative mb-6">
           <input type={showPassword ? "text" : "password"} required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="border w-full px-3 py-2.5 pr-10 outline-none focus:border-black" />
           <button
             type="button"
             onClick={() => setShowPassword((v) => !v)}
-            aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-            title={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+            aria-label={showPassword ? t("admin.login.hidePassword") : t("admin.login.showPassword")}
+            title={showPassword ? t("admin.login.hidePassword") : t("admin.login.showPassword")}
             className="absolute right-1 top-1/2 -translate-y-1/2 p-2 text-neutral-500 hover:text-black"
           >
             <EyeIcon open={showPassword} />
           </button>
         </div>
-        <button className="bg-black text-white w-full py-3 tracking-[0.2em] text-sm hover:bg-neutral-800 transition-colors">ĐĂNG NHẬP</button>
-        <Link href="/" className="block text-center text-sm underline mt-5">← Về trang chủ shop</Link>
+        <button className="bg-black text-white w-full py-3 tracking-[0.2em] text-sm hover:bg-neutral-800 transition-colors">{t("admin.login.submit")}</button>
+        <Link href="/" className="block text-center text-sm underline mt-5">{t("admin.login.backToShop")}</Link>
       </form>
     </div>
   );
@@ -297,10 +300,11 @@ type SidebarProps = {
    trị viên ở trên cùng, nút về shop, rồi menu theo đúng thứ tự bản demo.
    Menu đã lọc theo quyền của tài khoản đang đăng nhập. */
 function SidebarContent({ pathname, avatarName, title, email, nav, lowStock, newOrderCount, onLogout, onNavigate }: SidebarProps) {
+  const { t } = useLanguage();
   const badgeFor = (href: string) => {
     if (href === "/admin/products" && lowStock) {
       return (
-        <span className="ml-auto bg-amber-400 text-black text-[11px] font-bold leading-none px-1.5 py-1 rounded-full" title="Có sản phẩm sắp hết hàng">
+        <span className="ml-auto bg-amber-400 text-black text-[11px] font-bold leading-none px-1.5 py-1 rounded-full" title={t("admin.sidebar.lowStockBadge")}>
           !
         </span>
       );
@@ -319,7 +323,7 @@ function SidebarContent({ pathname, avatarName, title, email, nav, lowStock, new
     <>
       <div className="px-5 pt-7 pb-2">
         <p className="text-[28px] leading-none tracking-[0.35em] font-semibold">Fashion Store</p>
-        <p className="text-[10px] tracking-[0.35em] text-white/60 mt-2">FASHION - QUẢN TRỊ</p>
+        <p className="text-[10px] tracking-[0.35em] text-white/60 mt-2">FASHION - {t("admin.sidebar.adminEyebrow")}</p>
       </div>
 
       <div className="px-5 py-4 flex items-center gap-3">
@@ -328,7 +332,7 @@ function SidebarContent({ pathname, avatarName, title, email, nav, lowStock, new
           <p className="text-sm font-medium leading-snug">{title}</p>
           <p className="text-white/60 text-xs break-all">{email}</p>
         </div>
-        <button onClick={onLogout} title="Đăng xuất" aria-label="Đăng xuất" className="text-white/70 hover:text-white shrink-0">
+        <button onClick={onLogout} title={t("admin.sidebar.logout")} aria-label={t("admin.sidebar.logout")} className="text-white/70 hover:text-white shrink-0">
           <LogoutIcon />
         </button>
       </div>
@@ -340,7 +344,7 @@ function SidebarContent({ pathname, avatarName, title, email, nav, lowStock, new
           className="flex items-center gap-2.5 bg-white/5 hover:bg-white/10 rounded px-4 py-2.5 text-sm text-white"
         >
           <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" aria-hidden />
-          <span className="flex-1">Xem giao diện Shop</span>
+          <span className="flex-1">{t("admin.sidebar.viewShop")}</span>
           <span aria-hidden>↗</span>
         </Link>
       </div>
@@ -358,7 +362,7 @@ function SidebarContent({ pathname, avatarName, title, email, nav, lowStock, new
               }`}
             >
               <span aria-hidden className="shrink-0">{n.icon}</span>
-              <span className="flex-1">{n.label}</span>
+              <span className="flex-1">{t(n.labelKey)}</span>
               {badgeFor(n.href)}
             </Link>
           );
@@ -369,6 +373,7 @@ function SidebarContent({ pathname, avatarName, title, email, nav, lowStock, new
 }
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
+  const { t } = useLanguage();
   const { user, adminLogout } = useAdminAuth();
   const pathname = usePathname();
   const router = useRouter();
@@ -401,7 +406,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   }, [pathname]);
 
   if (!checked) {
-    return <div className="min-h-screen bg-[#171a21] text-white grid place-items-center">Đang tải trang quản trị…</div>;
+    return <div className="min-h-screen bg-[#171a21] text-white grid place-items-center">{t("admin.sidebar.loading")}</div>;
   }
   if (!user || !ADMIN_ROLES.includes(user.role as StaffRole)) return <AdminLogin />;
 
@@ -410,7 +415,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const sidebarProps = {
     pathname,
     avatarName: user.name,
-    title: sidebarTitle(user.role),
+    title: user.role === "admin" ? t("admin.sidebar.adminTitle") : t(`admin.roles.${user.role}`),
     email: user.email,
     nav: visibleNav,
     lowStock,
@@ -430,21 +435,24 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       {/* Thanh trên + drawer (mobile) */}
       <div className="md:hidden bg-[#171a21] text-white px-4 py-3 sticky top-0 z-40 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button onClick={() => setMobileOpen(true)} aria-label="Mở menu quản trị" className="p-1 text-white">
+          <button onClick={() => setMobileOpen(true)} aria-label={t("admin.sidebar.openMenu")} className="p-1 text-white">
             <HamburgerIcon />
           </button>
           <p className="tracking-[0.3em] font-light">
-            Fashion Store <span className="text-[10px] tracking-[0.3em] text-white/60">QUẢN TRỊ</span>
+            Fashion Store <span className="text-[10px] tracking-[0.3em] text-white/60">{t("admin.sidebar.adminEyebrow")}</span>
           </p>
         </div>
-        {canSeeMessages && <AdminBell />}
+        <div className="flex items-center gap-3">
+          <LanguageSwitcher dark />
+          {canSeeMessages && <AdminBell />}
+        </div>
       </div>
       {mobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
           <div className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} />
           <aside className="absolute left-0 top-0 h-full w-72 max-w-[85vw] bg-[#171a21] text-white flex flex-col overflow-y-auto shadow-xl">
             <div className="flex justify-end px-4 pt-3">
-              <button onClick={() => setMobileOpen(false)} aria-label="Đóng menu" className="p-1 text-white/70 hover:text-white">
+              <button onClick={() => setMobileOpen(false)} aria-label={t("admin.sidebar.closeMenu")} className="p-1 text-white/70 hover:text-white">
                 <CloseIcon />
               </button>
             </div>
@@ -457,8 +465,11 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
          vẫn dính ở đầu cột nhờ sticky). */}
       <div className="flex-1 min-w-0 flex flex-col md:h-screen md:overflow-y-auto">
         <div className="hidden md:flex items-center justify-between px-10 py-3 bg-white border-b sticky top-0 z-30">
-          <p className="text-sm text-neutral-500">Khu vực quản trị — Fashion Store</p>
-          {canSeeMessages && <AdminBell />}
+          <p className="text-sm text-neutral-500">{t("admin.sidebar.headerArea")}</p>
+          <div className="flex items-center gap-4">
+            <LanguageSwitcher />
+            {canSeeMessages && <AdminBell />}
+          </div>
         </div>
         <main className="flex-1 min-w-0 px-4 py-6 md:px-10 md:py-9">{children}</main>
       </div>

@@ -1,11 +1,12 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { useLanguage } from "@/context/LanguageContext";
 
-const PHRASE = "Mua 1 tặng 1";
-
-// Typewriter effect for "Mua 1 tặng 1" — matches the original site's animation
+// Typewriter effect for the promo phrase — matches the original site's animation
 export default function PromoBanner(){
+  const { t } = useLanguage();
+  const PHRASE = t("home.promoPhrase");
   const [shown, setShown] = useState("");
   const [inView, setInView] = useState(false);
   const sectionRef = useRef<HTMLElement | null>(null);
@@ -38,18 +39,18 @@ export default function PromoBanner(){
     };
     typeOnce();
     return () => { if (timer) clearInterval(timer); if (hold) clearTimeout(hold); };
-  }, [inView]);
+  }, [inView, PHRASE]);
 
   return (<section ref={sectionRef} className="relative h-80 md:h-[420px] overflow-hidden">
     {/* eslint-disable-next-line @next/next/no-img-element */}
-    <img src="/images/site/banner-promo.jpg" alt="Mua 1 tặng 1" className="absolute inset-0 w-full h-full object-cover" />
+    <img src="/images/site/banner-promo.jpg" alt={PHRASE} className="absolute inset-0 w-full h-full object-cover" />
     <div className="absolute inset-0 bg-black/30 flex flex-col items-center justify-center text-center px-4">
-      <p className="text-white tracking-[0.3em] text-[11px] md:text-sm">CHỈ TRONG THÁNG NÀY</p>
+      <p className="text-white tracking-[0.3em] text-[11px] md:text-sm">{t("home.promoOnlyThisMonth")}</p>
       <h2 className="mt-4 flex flex-wrap items-center justify-center gap-3 font-heading">
         <span className="text-white font-extrabold text-4xl md:text-6xl">HOT !!!</span>
         <span className="bg-white text-[#252a3a] italic font-bold text-3xl md:text-5xl px-3 py-1">{shown}<span className="animate-pulse font-normal not-italic">|</span></span>
       </h2>
-      <Link href="/shop" className="mt-7 bg-white text-neutral-900 px-9 py-3.5 text-[11px] tracking-[0.25em] hover:bg-black hover:text-white transition">XEM NGAY</Link>
+      <Link href="/shop" className="mt-7 bg-white text-neutral-900 px-9 py-3.5 text-[11px] tracking-[0.25em] hover:bg-black hover:text-white transition">{t("misc.viewNow")}</Link>
     </div>
   </section>);
 }

@@ -6,15 +6,15 @@ INSERT INTO categories (id, name, slug) VALUES
   (5, 'Woman', 'woman')
 ON CONFLICT(id) DO NOTHING;
 
-INSERT INTO products (id, category_id, name, slug, description, price, old_price, tag, created_at, updated_at) VALUES
-  (1, 1, 'Guide Pack Cap', 'guide-pack-cap', 'Mũ lưỡi trai tối giản, chất liệu cotton thoáng mát, phù hợp mọi outfit.', 50000, NULL, 'best', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-  (2, 5, 'Blue Raincoat', 'blue-raincoat', 'Áo khoác dài tông xanh pastel, form rộng thanh lịch cho mùa xuân.', 430000, NULL, 'best', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-  (3, 5, 'Cotton Jacket', 'cotton-jacket', 'Áo jacket cotton mềm, màu be dễ phối đồ, điểm nhấn cho set đồ tối giản.', 100000, NULL, 'best', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-  (4, 5, 'Crewneck Blouse', 'crewneck-blouse', 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.', 215000, NULL, 'best', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-  (5, 3, 'Eather Trainers', 'eather-trainers', 'Giày trainers màu nude, đế êm, phong cách tối giản Hàn Quốc.', 310000, NULL, 'new', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-  (6, 5, 'Cotton T-shirt', 'cotton-t-shirt', 'Áo thun cotton màu cam đào, sale 26%, item must-have mùa hè.', 250000, 340000, 'sale', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-  (7, 2, 'Azure Tote', 'azure-tote', 'Túi tote đen quai vàng, sale 20%, đựng vừa laptop 14 inch.', 200000, 250000, 'sale', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-  (8, 4, 'Classic Topper', 'classic-topper', 'Áo khoác dáng dài màu đen cổ điển, sang trọng và dễ phối.', 490000, NULL, 'new', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+INSERT INTO products (id, category_id, name, slug, description, name_en, description_en, price, old_price, tag, created_at, updated_at) VALUES
+  (1, 1, 'Guide Pack Cap', 'guide-pack-cap', 'Mũ lưỡi trai tối giản, chất liệu cotton thoáng mát, phù hợp mọi outfit.', 'Guide Pack Cap', 'Minimalist baseball cap in breathable cotton — fits every outfit.', 50000, NULL, 'best', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (2, 5, 'Blue Raincoat', 'blue-raincoat', 'Áo khoác dài tông xanh pastel, form rộng thanh lịch cho mùa xuân.', 'Blue Raincoat', 'Long pastel-blue coat with a relaxed, elegant cut for spring.', 430000, NULL, 'best', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (3, 5, 'Cotton Jacket', 'cotton-jacket', 'Áo jacket cotton mềm, màu be dễ phối đồ, điểm nhấn cho set đồ tối giản.', 'Cotton Jacket', 'Soft beige cotton jacket, easy to style — the finishing touch for a minimalist outfit.', 100000, NULL, 'best', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (4, 5, 'Crewneck Blouse', 'crewneck-blouse', 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.', 'Crewneck Blouse', 'Classic crewneck blouse with a clean, effortless silhouette.', 215000, NULL, 'best', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (5, 3, 'Eather Trainers', 'eather-trainers', 'Giày trainers màu nude, đế êm, phong cách tối giản Hàn Quốc.', 'Eather Trainers', 'Nude trainers with a cushioned sole, Korean minimalist style.', 310000, NULL, 'new', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (6, 5, 'Cotton T-shirt', 'cotton-t-shirt', 'Áo thun cotton màu cam đào, sale 26%, item must-have mùa hè.', 'Cotton T-shirt', 'Peach cotton T-shirt, 26% off — a summer must-have.', 250000, 340000, 'sale', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (7, 2, 'Azure Tote', 'azure-tote', 'Túi tote đen quai vàng, sale 20%, đựng vừa laptop 14 inch.', 'Azure Tote', 'Black tote with gold handles, 20% off — fits a 14-inch laptop.', 200000, 250000, 'sale', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (8, 4, 'Classic Topper', 'classic-topper', 'Áo khoác dáng dài màu đen cổ điển, sang trọng và dễ phối.', 'Classic Topper', 'Classic long black coat, timeless and easy to style.', 490000, NULL, 'new', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 ON CONFLICT(id) DO NOTHING;
 
 INSERT INTO product_images (id, product_id, url, alt, sort_order) VALUES

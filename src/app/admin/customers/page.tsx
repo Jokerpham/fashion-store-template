@@ -10,6 +10,8 @@ import { useAdminAuth } from "@/context/AdminAuthContext";
 import { logActivity } from "@/lib/activity";
 import { canDeleteCustomer } from "@/lib/roles";
 import { formatPrice } from "@/lib/format";
+import { useLanguage } from "@/context/LanguageContext";
+import { statusLabel, localeForLang } from "@/lib/i18n";
 
 type Customer = {
   key: string;
@@ -74,6 +76,8 @@ function deriveCustomers(orders: Order[], accounts: StoredAccount[]): Customer[]
 }
 
 export default function AdminCustomers() {
+  const { lang, t } = useLanguage();
+  const locale = localeForLang(lang);
   const { orders, deleteOrder } = useOrders();
   const { user } = useAdminAuth();
   const [accounts, setAccounts] = useState<StoredAccount[]>([]);
@@ -102,9 +106,9 @@ export default function AdminCustomers() {
   const removeCustomer = async (c: Customer) => {
     const extra =
       c.orders.length > 0
-        ? ` Các đơn hàng của họ (${c.orders.length} đơn) cũng sẽ bị xoá.`
-        : " Tài khoản này cũng sẽ bị xoá khỏi danh sách tài khoản.";
-    if (!confirm(`Xoá khách hàng "${c.name}"?${extra}`)) return;
+        ? t("admin.customers.deleteExtraOrders", { count: c.orders.length })
+        : t("admin.customers.deleteExtraAccount");
+    if (!confirm(t("admin.customers.deleteConfirm", { name: c.name, extra }))) return;
     for (const o of c.orders) {
       try {
         await deleteOrder(o.id);
@@ -122,27 +126,26 @@ export default function AdminCustomers() {
 
   return (
     <div>
-      <h1 className="text-2xl font-light tracking-wide">Khách hàng</h1>
+      <h1 className="text-2xl font-light tracking-wide">{t("admin.customers.title")}</h1>
       <p className="text-sm text-neutral-500 mt-1">
-        Khách hàng suy ra từ đơn hàng và tài khoản đã đăng ký. Bấm vào tên khách để xem chi tiết và
-        lịch sử mua hàng.
+        {t("admin.customers.subtitle")}
       </p>
 
       <div className="bg-white shadow-sm mt-6 overflow-x-auto">
         {customers.length === 0 ? (
           <p className="px-5 py-10 text-neutral-500 text-sm">
-            Chưa có khách hàng nào. Khi khách đặt hàng hoặc đăng ký tài khoản, khách sẽ hiện ở đây.
+            {t("admin.customers.empty")}
           </p>
         ) : (
           <table className="w-full text-sm min-w-[720px]">
             <thead>
               <tr className="text-left text-neutral-500 border-b">
-                <th className="px-5 py-3 font-medium">Khách hàng</th>
-                <th className="px-5 py-3 font-medium">Liên hệ</th>
-                <th className="px-5 py-3 font-medium">Số đơn</th>
-                <th className="px-5 py-3 font-medium">Tổng chi tiêu</th>
-                <th className="px-5 py-3 font-medium">Khách từ</th>
-                <th className="px-5 py-3 font-medium text-right">Thao tác</th>
+                <th className="px-5 py-3 font-medium">{t("admin.customers.thCustomer")}</th>
+                <th className="px-5 py-3 font-medium">{t("admin.customers.thContact")}</th>
+                <th className="px-5 py-3 font-medium">{t("admin.customers.thOrderCount")}</th>
+                <th className="px-5 py-3 font-medium">{t("admin.customers.thTotalSpent")}</th>
+                <th className="px-5 py-3 font-medium">{t("admin.customers.thSince")}</th>
+                <th className="px-5 py-3 font-medium text-right">{t("admin.customers.thActions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -164,19 +167,19 @@ export default function AdminCustomers() {
                     <td className="px-5 py-3 align-top">{c.orderCount}</td>
                     <td className="px-5 py-3 align-top font-medium">{formatPrice(c.totalSpent)}</td>
                     <td className="px-5 py-3 align-top whitespace-nowrap">
-                      {c.firstDate ? new Date(c.firstDate).toLocaleDateString("vi-VN") : "—"}
+                      {c.firstDate ? new Date(c.firstDate).toLocaleDateString(locale) : "—"}
                     </td>
                     <td className="px-5 py-3 align-top text-right whitespace-nowrap">
                       <button
                         onClick={() => setOpenKey(openKey === c.key ? null : c.key)}
                         className="underline mr-4"
                       >
-                        Xem
+                        {t("admin.customers.view")}
                       </button>
                       {canDelete && (
                         <button
-                          title="Xoá khách hàng"
-                          aria-label={`Xoá khách hàng ${c.name}`}
+                          title={t("admin.customers.deleteCustomer")}
+                          aria-label={t("admin.customers.deleteCustomerAria", { name: c.name })}
                           onClick={() => removeCustomer(c)}
                           className="text-red-600 text-base leading-none"
                         >
@@ -189,29 +192,29 @@ export default function AdminCustomers() {
                     <tr className="border-b bg-neutral-50">
                       <td colSpan={6} className="px-5 py-4">
                         <p className="text-sm">
-                          <b>Địa chỉ:</b> {c.address || "—"}
+                          <b>{t("admin.customers.addressLabel")}</b> {c.address || "—"}
                           {c.email ? (
                             <>
                               {" "}
-                              · <b>Email:</b> {c.email}
+                              · <b>{t("admin.customers.emailLabel")}</b> {c.email}
                             </>
                           ) : null}
                           {c.phone ? (
                             <>
                               {" "}
-                              · <b>Điện thoại:</b> {c.phone}
+                              · <b>{t("admin.customers.phoneLabel")}</b> {c.phone}
                             </>
                           ) : null}
                         </p>
                         {c.orders.length === 0 ? (
-                          <p className="text-sm text-neutral-500 mt-2">Khách này chưa có đơn hàng nào.</p>
+                          <p className="text-sm text-neutral-500 mt-2">{t("admin.customers.noOrders")}</p>
                         ) : (
                           <ul className="mt-2 space-y-1 text-sm">
                             {c.orders.map((o) => (
                               <li key={o.id}>
-                                • {o.id} — {new Date(o.date).toLocaleString("vi-VN")} —{" "}
+                                • {o.id} — {new Date(o.date).toLocaleString(locale)} —{" "}
                                 {o.items.map((it) => `${it.name} × ${it.qty}`).join(", ")} —{" "}
-                                {formatPrice(o.total)} ({o.status})
+                                {formatPrice(o.total)} ({statusLabel(o.status, lang)})
                               </li>
                             ))}
                           </ul>
@@ -221,7 +224,7 @@ export default function AdminCustomers() {
                             onClick={() => removeCustomer(c)}
                             className="mt-3 underline text-red-600 text-sm"
                           >
-                            🗑 Xoá khách hàng này
+                            {t("admin.customers.deleteThis")}
                           </button>
                         )}
                       </td>

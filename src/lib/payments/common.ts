@@ -1,4 +1,10 @@
 import { prisma } from "@/lib/prisma";
+import {
+  getAdminEmail,
+  scheduleEmail,
+  sendPaymentReceivedEmail,
+} from "@/lib/email";
+import { toAppOrder } from "@/lib/db-map";
 import type { GatewayId } from "./config";
 
 /* Hàm dùng chung cho các cổng thanh toán (chỉ chạy phía server).
@@ -95,6 +101,26 @@ export async function markOrderPaid(
       rawPayload: opts.rawPayload ?? undefined,
     },
   });
+  /* Email báo admin đã nhận thanh toán (v6): chỉ gửi đúng 1 lần cho lần
+     chuyển sang paid đầu tiên — nhờ điều kiện status != "paid" ở trên,
+     webhook gọi lại hay trang kết quả xác nhận thêm cũng không gửi trùng.
+     Thanh toán giả lập vẫn gửi nhưng ghi rõ "(giả lập)" để admin không
+     nhầm là tiền thật. Lỗi mail không bao giờ làm hỏng xác nhận thanh toán. */
+  const full = await prisma.order.findUnique({
+    where: { code: orderCode },
+    include: { items: true },
+  });
+  if (full) {
+    scheduleEmail(
+      getAdminEmail(prisma).then((adminEmail) =>
+        sendPaymentReceivedEmail(toAppOrder(full), opts.gateway, adminEmail, {
+          simulated: opts.simulated,
+          amount: opts.amount ?? full.total,
+          currency: opts.currency ?? "VND",
+        }),
+      ),
+    );
+  }
   return { ok: true, alreadyPaid: false };
 }
 

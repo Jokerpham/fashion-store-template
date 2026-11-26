@@ -7,8 +7,12 @@ import { useEffect, useState } from "react";
 import { useMessages, fetchReplies, postReply, type MessageReply } from "@/lib/store";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { logActivity } from "@/lib/activity";
+import { useLanguage } from "@/context/LanguageContext";
+import { localeForLang } from "@/lib/i18n";
 
 export default function AdminMessages() {
+  const { lang, t } = useLanguage();
+  const locale = localeForLang(lang);
   const { messages, deleteMessage } = useMessages();
   const { user } = useAdminAuth();
   const [openId, setOpenId] = useState<string | null>(null);
@@ -59,14 +63,14 @@ export default function AdminMessages() {
       setReplyBody("");
       logActivity(user?.email, "Trả lời tin nhắn", `Trả lời tin nhắn "${open.subject || open.name}".`);
     } catch {
-      setReplyError("Gửi trả lời chưa được, bạn thử lại nhé.");
+      setReplyError(t("admin.messages.replyError"));
     } finally {
       setSending(false);
     }
   };
 
   const remove = (id: string, label: string) => {
-    if (confirm(`Xoá tin nhắn "${label}"?`)) {
+    if (confirm(t("admin.messages.deleteConfirm", { label }))) {
       deleteMessage(id);
       logActivity(user?.email, "Xoá tin nhắn", `Xoá tin nhắn "${label}".`);
       if (openId === id) setOpenId(null);
@@ -75,22 +79,22 @@ export default function AdminMessages() {
 
   return (
     <div>
-      <h1 className="text-2xl font-light tracking-wide">Tin nhắn liên hệ</h1>
+      <h1 className="text-2xl font-light tracking-wide">{t("admin.messages.title")}</h1>
       <p className="text-sm text-neutral-500 mt-1">
-        Khách gửi từ form ở trang Liên hệ sẽ hiện về đây. Bấm vào một tin để xem chi tiết và trả lời.
+        {t("admin.messages.subtitle")}
       </p>
 
       {open && (
         <div className="bg-white shadow-sm p-5 md:p-6 mt-6 border-t-4 border-black">
           <div className="flex flex-wrap items-start justify-between gap-2">
             <div>
-              <p className="font-medium text-lg">{open.subject || "(Không có chủ đề)"}</p>
+              <p className="font-medium text-lg">{open.subject || t("admin.messages.noSubject")}</p>
               <p className="text-sm text-neutral-500 mt-0.5">
-                {open.name} · {open.email} · {new Date(open.date).toLocaleString("vi-VN")}
+                {open.name} · {open.email} · {new Date(open.date).toLocaleString(locale)}
               </p>
             </div>
             <button onClick={() => setOpenId(null)} className="text-sm underline">
-              Đóng
+              {t("admin.messages.close")}
             </button>
           </div>
           <p className="text-sm leading-relaxed mt-4 whitespace-pre-line">{open.message}</p>
@@ -107,8 +111,8 @@ export default function AdminMessages() {
                 }`}
               >
                 <p className="text-xs font-medium opacity-70">
-                  {r.sender === "admin" ? "Quản trị viên" : open.name} ·{" "}
-                  {new Date(r.date).toLocaleString("vi-VN")}
+                  {r.sender === "admin" ? t("admin.messages.adminSender") : open.name} ·{" "}
+                  {new Date(r.date).toLocaleString(locale)}
                 </p>
                 <p className="text-sm leading-relaxed mt-1 whitespace-pre-line">{r.body}</p>
               </div>
@@ -120,7 +124,7 @@ export default function AdminMessages() {
             <textarea
               value={replyBody}
               onChange={(e) => setReplyBody(e.target.value)}
-              placeholder="Nhắn lại cho khách..."
+              placeholder={t("admin.messages.replyPlaceholder")}
               rows={3}
               className="w-full border border-neutral-300 px-4 py-3 text-sm outline-none focus:border-black resize-y"
             />
@@ -130,24 +134,24 @@ export default function AdminMessages() {
               disabled={sending || !replyBody.trim()}
               className="bg-black text-white px-5 py-2.5 text-sm mt-3 hover:bg-neutral-800 disabled:opacity-50"
             >
-              {sending ? "Đang gửi..." : "Gửi trả lời"}
+              {sending ? t("admin.messages.sending") : t("admin.messages.sendReply")}
             </button>
           </div>
 
           <div className="flex flex-wrap gap-2 mt-5">
             <a
               href={`mailto:${open.email}?subject=${encodeURIComponent(
-                `Re: ${open.subject || "Liên hệ Fashion Store"}`,
+                `Re: ${open.subject || t("admin.messages.replySubjectFallback")}`,
               )}`}
               className="bg-black text-white px-5 py-2.5 text-sm hover:bg-neutral-800"
             >
-              Trả lời qua email
+              {t("admin.messages.replyByEmail")}
             </a>
             <button
               onClick={() => remove(open.id, open.subject || open.name)}
               className="border border-red-200 text-red-600 px-5 py-2.5 text-sm hover:border-red-600"
             >
-              🗑 Xoá tin nhắn này
+              {t("admin.messages.deleteThis")}
             </button>
           </div>
         </div>
@@ -155,15 +159,15 @@ export default function AdminMessages() {
 
       <div className="bg-white shadow-sm mt-6 overflow-x-auto">
         {messages.length === 0 ? (
-          <p className="px-5 py-10 text-neutral-500 text-sm">Chưa có tin nhắn nào.</p>
+          <p className="px-5 py-10 text-neutral-500 text-sm">{t("admin.messages.empty")}</p>
         ) : (
           <table className="w-full text-sm min-w-[640px]">
             <thead>
               <tr className="text-left text-neutral-500 border-b">
-                <th className="px-5 py-3 font-medium">Khách hàng</th>
-                <th className="px-5 py-3 font-medium">Chủ đề</th>
-                <th className="px-5 py-3 font-medium">Ngày gửi</th>
-                <th className="px-5 py-3 font-medium text-right">Thao tác</th>
+                <th className="px-5 py-3 font-medium">{t("admin.messages.thCustomer")}</th>
+                <th className="px-5 py-3 font-medium">{t("admin.messages.thSubject")}</th>
+                <th className="px-5 py-3 font-medium">{t("admin.messages.thDate")}</th>
+                <th className="px-5 py-3 font-medium text-right">{t("admin.messages.thActions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -183,17 +187,17 @@ export default function AdminMessages() {
                   </td>
                   <td className="px-5 py-3 align-top">
                     <button onClick={() => setOpenId(m.id)} className="underline underline-offset-2 text-left">
-                      {m.subject || "(Không có chủ đề)"}
+                      {m.subject || t("admin.messages.noSubject")}
                     </button>
                   </td>
-                  <td className="px-5 py-3 align-top whitespace-nowrap">{new Date(m.date).toLocaleString("vi-VN")}</td>
+                  <td className="px-5 py-3 align-top whitespace-nowrap">{new Date(m.date).toLocaleString(locale)}</td>
                   <td className="px-5 py-3 align-top text-right whitespace-nowrap">
                     <button onClick={() => setOpenId(m.id)} className="underline mr-4">
-                      Xem
+                      {t("admin.messages.view")}
                     </button>
                     <button
-                      title="Xoá tin nhắn"
-                      aria-label={`Xoá tin nhắn của ${m.name}`}
+                      title={t("admin.messages.deleteMessage")}
+                      aria-label={t("admin.messages.deleteMessageAria", { name: m.name })}
                       onClick={() => remove(m.id, m.subject || m.name)}
                       className="text-red-600 text-base leading-none"
                     >

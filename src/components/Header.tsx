@@ -4,19 +4,22 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
-const nav = [{label:"TRANG CHỦ",href:"/"},{label:"SHOP",href:"/shop"},{label:"VỀ CHÚNG TÔI",href:"/about"},{label:"Fashion Store",href:"/",logo:true},{label:"COMING SOON",href:"/coming-soon"},{label:"TIN TỨC",href:"/blog"},{label:"LIÊN HỆ",href:"/contact"}];
+import { useLanguage } from "@/context/LanguageContext";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 /* Icon vẽ nét (outline) giống hệt bản gốc: kính lúp tìm kiếm, người dùng, túi mua hàng */
 const SearchIcon = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="w-[22px] h-[22px]"><circle cx="11" cy="11" r="7" /><path d="M16.3 16.3 L21 21" /></svg>);
 const UserIcon = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" className="w-[23px] h-[23px]"><circle cx="12" cy="8" r="3.8" /><path d="M4.9 20.1c1-3.7 3.7-5.6 7.1-5.6s6.1 1.9 7.1 5.6" /></svg>);
 const BagIcon = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className="w-[23px] h-[23px]"><path d="M4.6 9h14.8l-1 11a2 2 0 0 1-2 1.8H7.6a2 2 0 0 1-2-1.8L4.6 9Z" /><path d="M9 9V7.2a3 3 0 0 1 6 0V9" /></svg>);
 const CloseIcon = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className="w-7 h-7"><path d="M5 5l14 14M19 5L5 19" /></svg>);
-const QUICK = ["Áo khoác", "Túi", "Giày", "Áo thun", "Mũ"];
 
 export default function Header(){
   const pathname = usePathname();
   const router = useRouter();
   const {count,setOpen}=useCart();
   const {user}=useAuth();
+  const { t } = useLanguage();
+  const nav = [{label:t("nav.home"),href:"/"},{label:t("nav.shop"),href:"/shop"},{label:t("nav.about"),href:"/about"},{label:"Fashion Store",href:"/",logo:true},{label:t("nav.comingSoon"),href:"/coming-soon"},{label:t("nav.blog"),href:"/blog"},{label:t("nav.contact"),href:"/contact"}];
+  const QUICK = [t("misc.quickJacket"), t("misc.quickBag"), t("misc.quickShoes"), t("misc.quickTshirt"), t("misc.quickHat")];
   /* Trạng thái ô tìm kiếm (Modal Search) */
   const [searchOpen, setSearchOpen] = useState(false);
   const [term, setTerm] = useState("");
@@ -61,14 +64,15 @@ export default function Header(){
         : `relative z-40 ${pathname === "/contact" ? "bg-[#e4e9ec]" : "bg-beige"}`
     }>
       <div className={`container-x flex items-center justify-between py-5 ${overlay ? "text-white [text-shadow:0_1px_12px_rgba(0,0,0,0.5)]" : "text-[#2e2a24]"}`}>
-        <button aria-label="Tìm kiếm" className="cursor-pointer" onClick={() => setSearchOpen(true)}><SearchIcon /></button>
+        <button aria-label={t("header.search")} className="cursor-pointer" onClick={() => setSearchOpen(true)}><SearchIcon /></button>
         <nav className="hidden md:flex items-center gap-8 text-[11px] tracking-[0.18em] font-medium font-heading">
           {nav.map((n,i)=> n.logo ? <Link key={i} href="/" className="text-center leading-none mx-2"><span className="text-2xl tracking-[0.35em] font-light">Fashion Store</span><span className="block text-[8px] tracking-[0.5em] mt-1">FASHION</span></Link> : <Link key={i} href={n.href} className="hover:underline underline-offset-4">{n.label}</Link>)}
         </nav>
         <Link href="/" className="md:hidden text-xl tracking-[0.3em]">Fashion Store</Link>
         <div className="flex items-center gap-4">
-          <Link href={isStaff ? "/admin" : "/account"} aria-label={isStaff ? "Vào trang quản trị" : "Tài khoản của tôi"} className="cursor-pointer flex items-center" title={isStaff ? "Vào trang quản trị" : user ? user.name : "Đăng nhập / Đăng ký"}><UserIcon />{user && !isStaff && <span className="hidden md:inline text-xs ml-1 max-w-[90px] truncate align-middle">{user.name}</span>}</Link>
-          <button onClick={()=>setOpen(true)} aria-label="Giỏ hàng" className="relative cursor-pointer"><BagIcon /><span className="absolute -top-2 -right-2.5 bg-[#4d4d4d] text-white text-[10px] min-w-[18px] h-[18px] px-0.5 rounded-full grid place-items-center leading-none">{count}</span></button>
+          <LanguageSwitcher />
+          <Link href={isStaff ? "/admin" : "/account"} aria-label={isStaff ? t("header.adminPanel") : t("header.myAccount")} className="cursor-pointer flex items-center" title={isStaff ? t("header.adminPanel") : user ? user.name : t("header.loginRegister")}><UserIcon />{user && !isStaff && <span className="hidden md:inline text-xs ml-1 max-w-[90px] truncate align-middle">{user.name}</span>}</Link>
+          <button onClick={()=>setOpen(true)} aria-label={t("header.cart")} className="relative cursor-pointer"><BagIcon /><span className="absolute -top-2 -right-2.5 bg-[#4d4d4d] text-white text-[10px] min-w-[18px] h-[18px] px-0.5 rounded-full grid place-items-center leading-none">{count}</span></button>
         </div>
       </div>
       <nav className={`md:hidden flex justify-center gap-4 text-[10px] tracking-widest pb-3 font-heading ${overlay ? "text-white [text-shadow:0_1px_12px_rgba(0,0,0,0.5)]" : "text-[#2e2a24]"}`}>{nav.filter(n=>!n.logo).map((n,i)=><Link key={i} href={n.href}>{n.label}</Link>)}</nav>
@@ -86,12 +90,12 @@ export default function Header(){
       className={`fixed inset-x-0 top-0 z-[60] bg-white shadow-xl transition-transform duration-500 ease-out ${searchOpen ? "translate-y-0" : "-translate-y-full"}`}
       role="dialog"
       aria-modal="true"
-      aria-label="Tìm kiếm"
+      aria-label={t("header.search")}
     >
       <div className="container-x py-8 md:py-10 relative">
         <button
           onClick={() => setSearchOpen(false)}
-          aria-label="Đóng tìm kiếm"
+          aria-label={t("header.closeSearch")}
           className="absolute right-4 top-4 md:right-6 md:top-5 text-neutral-500 hover:text-black transition-colors cursor-pointer"
         >
           <CloseIcon />
@@ -107,15 +111,15 @@ export default function Header(){
               value={term}
               onChange={(e) => setTerm(e.target.value)}
               type="text"
-              placeholder="Tìm kiếm sản phẩm..."
+              placeholder={t("header.searchPlaceholder")}
               className="flex-1 bg-transparent outline-none text-xl md:text-2xl font-light placeholder:text-neutral-400"
             />
             <button type="submit" className="bg-black font-heading text-white text-[11px] tracking-[0.2em] uppercase px-5 py-2.5 hover:bg-neutral-800 transition-colors cursor-pointer">
-              Tìm kiếm
+              {t("header.searchButton")}
             </button>
           </div>
           <div className="flex flex-wrap items-center gap-2 mt-4 text-sm text-neutral-500">
-            <span>Gợi ý:</span>
+            <span>{t("header.suggestions")}</span>
             {QUICK.map((k) => (
               <button
                 key={k}

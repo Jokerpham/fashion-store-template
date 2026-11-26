@@ -71,12 +71,14 @@ export function toAppProduct(row: any): Product {
     id: row.id,
     slug: row.slug,
     name: row.name,
+    nameEn: row.nameEn ?? undefined,
     price: row.price,
     oldPrice: row.oldPrice ?? undefined,
     category: row.category?.slug ?? "woman",
     tag: row.tag ?? undefined,
     image: row.images?.[0]?.url ?? "",
     description: row.description ?? "",
+    descriptionEn: row.descriptionEn ?? undefined,
     sizes: (row.sizes ?? []).map((s: any) => s.size),
     // Giữ tồn kho theo size để sidebar tính badge "sắp hết hàng" (mặc định 100 như Prisma).
     sizeStocks: (row.sizes ?? []).map((s: any) => ({

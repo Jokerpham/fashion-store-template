@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { logActivity } from "@/lib/activity";
 import AdminAvatar from "@/components/admin/AdminAvatar";
+import { useLanguage } from "@/context/LanguageContext";
 
 // Icon con mắt: mở khi đang hiện mật khẩu, gạch chéo khi đang ẩn (giống trang /account)
 function EyeIcon({ open }: { open: boolean }) {
@@ -40,6 +41,7 @@ const label = "block text-sm mb-1";
 const field = "border w-full px-3 py-2.5 pr-10 outline-none focus:border-black";
 
 export default function AdminSettingsPage() {
+  const { t } = useLanguage();
   const { user, changeAdminPassword, listStaff, updateStaff } = useAdminAuth();
   const isAdmin = user?.role === "admin";
   const avatarBoxRef = useRef<HTMLDivElement>(null);
@@ -48,7 +50,7 @@ export default function AdminSettingsPage() {
   // nút avatar sẵn có trong khối này.
   const openAvatarModal = () => {
     avatarBoxRef.current
-      ?.querySelector<HTMLButtonElement>('button[aria-label="Đổi ảnh đại diện"]')
+      ?.querySelector<HTMLButtonElement>("button[data-avatar-open]")
       ?.click();
   };
   const [current, setCurrent] = useState("");
@@ -86,16 +88,16 @@ export default function AdminSettingsPage() {
     setPhoneNotice("");
     if (!user) return;
     if (!isAdmin) {
-      setPhoneError("Chỉ quản trị viên mới được sửa số điện thoại.");
+      setPhoneError(t("admin.settings.phoneErrorAdminOnly"));
       return;
     }
     const r = await updateStaff(user.email, { phone: phone.trim() });
     if (!r.ok) {
-      setPhoneError(r.error || "Không lưu được số điện thoại.");
+      setPhoneError(r.error || t("admin.settings.phoneErrorSave"));
       return;
     }
     logActivity(user?.email, "Sửa số điện thoại", `Tài khoản ${user?.email} đổi số điện thoại thành ${phone.trim() || "(trống)"}.`);
-    setPhoneNotice("Đã lưu số điện thoại.");
+    setPhoneNotice(t("admin.settings.phoneSaved"));
   };
 
   const submit = async (e: React.FormEvent) => {
@@ -103,20 +105,20 @@ export default function AdminSettingsPage() {
     setError("");
     setNotice("");
     if (next.length < 6) {
-      setError("Mật khẩu mới cần tối thiểu 6 ký tự.");
+      setError(t("admin.settings.errorShort"));
       return;
     }
     if (next !== confirm) {
-      setError("Mật khẩu nhập lại chưa khớp với mật khẩu mới.");
+      setError(t("admin.settings.errorMismatch"));
       return;
     }
     const r = await changeAdminPassword(current, next);
     if (!r.ok) {
-      setError(r.error || "Đổi mật khẩu thất bại.");
+      setError(r.error || t("admin.settings.errorChange"));
       return;
     }
     logActivity(user?.email, "Đổi mật khẩu", `Tài khoản ${user?.email} đổi mật khẩu.`);
-    setNotice("Đổi mật khẩu thành công. Lần đăng nhập sau hãy dùng mật khẩu mới.");
+    setNotice(t("admin.settings.passwordSaved"));
     setCurrent("");
     setNext("");
     setConfirm("");
@@ -146,8 +148,8 @@ export default function AdminSettingsPage() {
         <button
           type="button"
           onClick={() => setShow(!show)}
-          aria-label={show ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-          title={show ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+          aria-label={show ? t("admin.settings.hidePassword") : t("admin.settings.showPassword")}
+          title={show ? t("admin.settings.hidePassword") : t("admin.settings.showPassword")}
           className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-black"
         >
           <EyeIcon open={show} />
@@ -158,38 +160,38 @@ export default function AdminSettingsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-medium">Cài đặt & Bảo mật</h1>
+      <h1 className="text-2xl font-medium">{t("admin.settings.title")}</h1>
 
-      <h2 className="font-medium mt-8">Tài khoản quản trị</h2>
+      <h2 className="font-medium mt-8">{t("admin.settings.accountTitle")}</h2>
       <div className="bg-white border max-w-md p-6 mt-4">
         <div ref={avatarBoxRef} className="flex items-center gap-4">
-          <AdminAvatar name={user?.name ?? "Quản trị viên Fashion Store"} />
+          <AdminAvatar name={user?.name ?? t("admin.settings.adminName")} />
           <div className="min-w-0">
-            <p className="font-medium">Quản trị viên Fashion Store</p>
+            <p className="font-medium">{t("admin.settings.adminName")}</p>
             <p className="text-neutral-500 text-sm break-all">{user?.email}</p>
-            <p className="text-sm mt-1">Vai trò: Quản trị viên</p>
+            <p className="text-sm mt-1">{t("admin.settings.roleLabel", { role: user ? t(`admin.roles.${user.role}`) : t("admin.roles.admin") })}</p>
           </div>
         </div>
         <button
           type="button"
           onClick={openAvatarModal}
-          aria-label="Mở đổi ảnh đại diện"
+          aria-label={t("admin.settings.changeAvatarAria")}
           className="border px-4 py-2 text-sm mt-4 hover:border-black"
         >
-          Đổi ảnh đại diện
+          {t("admin.settings.changeAvatar")}
         </button>
         <p className="text-xs text-neutral-500 mt-3 leading-relaxed">
-          Bấm vào ảnh đại diện hoặc nút trên để đổi ảnh. Ảnh chỉ lưu trên trình duyệt này.
+          {t("admin.settings.avatarNote")}
         </p>
       </div>
 
-      <h2 className="font-medium mt-8">Số điện thoại</h2>
+      <h2 className="font-medium mt-8">{t("admin.settings.phoneTitle")}</h2>
       <form onSubmit={submitPhone} className="bg-white border max-w-md p-6 mt-4 space-y-4">
         {phoneError && <p className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3">{phoneError}</p>}
         {phoneNotice && <p className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm px-4 py-3">{phoneNotice}</p>}
         <div>
           <label htmlFor="st-phone" className={label}>
-            Số điện thoại của admin
+            {t("admin.settings.phoneLabel")}
           </label>
           <input
             id="st-phone"
@@ -197,7 +199,7 @@ export default function AdminSettingsPage() {
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             disabled={!isAdmin}
-            placeholder="Ví dụ: 0123456789"
+            placeholder={t("admin.settings.phonePlaceholder")}
             className={field + (isAdmin ? "" : " bg-neutral-100 text-neutral-500")}
           />
         </div>
@@ -206,29 +208,28 @@ export default function AdminSettingsPage() {
           disabled={!isAdmin}
           className="bg-black font-heading text-white px-8 py-3 text-sm tracking-[0.2em] hover:bg-neutral-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          LƯU SỐ ĐIỆN THOẠI
+          {t("admin.settings.savePhone")}
         </button>
         {!isAdmin && (
           <p className="text-xs text-neutral-500 leading-relaxed">
-            Chỉ quản trị viên mới được sửa số điện thoại này. Tài khoản của bạn chỉ xem được.
+            {t("admin.settings.phoneOnlyAdmin")}
           </p>
         )}
       </form>
 
-      <h2 className="font-medium mt-8">Đổi mật khẩu</h2>
+      <h2 className="font-medium mt-8">{t("admin.settings.passwordTitle")}</h2>
       <form onSubmit={submit} className="bg-white border max-w-md p-6 mt-4 space-y-5">
         {error && <p className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3">{error}</p>}
         {notice && <p className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm px-4 py-3">{notice}</p>}
-        {passField("st-pw-current", "Mật khẩu hiện tại", current, setCurrent, showCurrent, setShowCurrent)}
-        {passField("st-pw-new", "Mật khẩu mới", next, setNext, showNext, setShowNext)}
-        {passField("st-pw-confirm", "Nhập lại mật khẩu mới", confirm, setConfirm, showConfirm, setShowConfirm)}
+        {passField("st-pw-current", t("admin.settings.currentPassword"), current, setCurrent, showCurrent, setShowCurrent)}
+        {passField("st-pw-new", t("admin.settings.newPassword"), next, setNext, showNext, setShowNext)}
+        {passField("st-pw-confirm", t("admin.settings.confirmPassword"), confirm, setConfirm, showConfirm, setShowConfirm)}
         <button className="bg-black font-heading text-white px-8 py-3 text-sm tracking-[0.2em] hover:bg-neutral-800 transition-colors">
-          ĐỔI MẬT KHẨU
+          {t("admin.settings.changePassword")}
         </button>
       </form>
       <p className="text-xs text-neutral-500 mt-4 leading-relaxed max-w-md">
-        Lưu ý: mật khẩu được băm và lưu phía máy chủ (CSDL D1), đổi xong là mật khẩu cũ mất hiệu lực
-        ngay trên mọi máy. Hãy nhớ mật khẩu mới — trang quản trị chưa có chức năng gửi email khôi phục.
+        {t("admin.settings.note")}
       </p>
     </div>
   );

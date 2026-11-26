@@ -12,8 +12,22 @@ import {
   saveAvatar,
   type AdminAvatar,
 } from "@/lib/avatar";
+import { useLanguage } from "@/context/LanguageContext";
 
-function AvatarImage({ avatar, size }: { avatar: AdminAvatar; size: number }) {
+/* Nhãn ảnh có sẵn lấy từ lib/avatar (tiếng Việt) — dịch qua khóa admin.avatar.preset* theo nhãn gốc. */
+function presetLabel(label: string, t: (key: string) => string): string {
+  const map: Record<string, string> = {
+    "Gấu trúc": t("admin.avatar.presetPanda"),
+    "Mèo": t("admin.avatar.presetCat"),
+    "Chó": t("admin.avatar.presetDog"),
+    "Gấu": t("admin.avatar.presetBear"),
+    "Thỏ": t("admin.avatar.presetRabbit"),
+    "Cáo": t("admin.avatar.presetFox"),
+  };
+  return map[label] ?? label;
+}
+
+function AvatarImage({ avatar, size, alt }: { avatar: AdminAvatar; size: number; alt: string }) {
   if (avatar.type === "letter") {
     return (
       <span
@@ -28,7 +42,7 @@ function AvatarImage({ avatar, size }: { avatar: AdminAvatar; size: number }) {
   return (
     <img
       src={avatar.src}
-      alt="Ảnh đại diện quản trị viên"
+      alt={alt}
       className="rounded-full object-cover bg-white shrink-0"
       style={{ width: size, height: size }}
     />
@@ -36,6 +50,7 @@ function AvatarImage({ avatar, size }: { avatar: AdminAvatar; size: number }) {
 }
 
 export default function AdminAvatar({ name }: { name: string }) {
+  const { t } = useLanguage();
   const [avatar, setAvatar] = useState<AdminAvatar>({ type: "image", src: PANDA_AVATAR });
   const [open, setOpen] = useState(false);
   const [letter, setLetter] = useState("");
@@ -56,7 +71,7 @@ export default function AdminAvatar({ name }: { name: string }) {
     const f = e.target.files?.[0];
     if (!f) return;
     if (f.size > 800 * 1024) {
-      setError("Ảnh quá lớn, hãy chọn ảnh dưới 800KB.");
+      setError(t("admin.avatar.errorTooBig"));
       return;
     }
     const r = new FileReader();
@@ -73,11 +88,12 @@ export default function AdminAvatar({ name }: { name: string }) {
     <>
       <button
         onClick={() => setOpen(true)}
-        title="Đổi ảnh đại diện"
-        aria-label="Đổi ảnh đại diện"
+        title={t("admin.avatar.change")}
+        aria-label={t("admin.avatar.change")}
+        data-avatar-open
         className="rounded-full ring-2 ring-white/20 hover:ring-white transition-shadow shrink-0"
       >
-        <AvatarImage avatar={avatar} size={44} />
+        <AvatarImage avatar={avatar} size={44} alt={t("admin.avatar.avatarAlt")} />
       </button>
       {/* Bảng đổi ảnh render thẳng ra body (portal) với z rất cao, để không
           khối nào trên trang đè lên được — sửa lỗi ô mật khẩu nổi lên trên
@@ -93,21 +109,21 @@ export default function AdminAvatar({ name }: { name: string }) {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
-              <h2 className="font-medium text-lg">Đổi ảnh đại diện</h2>
-              <button onClick={() => setOpen(false)} className="text-2xl leading-none px-2" aria-label="Đóng">
+              <h2 className="font-medium text-lg">{t("admin.avatar.title")}</h2>
+              <button onClick={() => setOpen(false)} className="text-2xl leading-none px-2" aria-label={t("admin.avatar.close")}>
                 ×
               </button>
             </div>
-            <p className="text-sm text-neutral-500 mt-1">Bấm vào ảnh để chọn. Ảnh chỉ lưu trên trình duyệt này.</p>
+            <p className="text-sm text-neutral-500 mt-1">{t("admin.avatar.note")}</p>
 
-            <p className="text-sm font-medium mt-5 mb-2">Ảnh có sẵn</p>
+            <p className="text-sm font-medium mt-5 mb-2">{t("admin.avatar.presets")}</p>
             <div className="flex flex-wrap gap-3">
               {AVATAR_PRESETS.map((p) => (
                 <button
                   key={p.src}
                   onClick={() => pick({ type: "image", src: p.src })}
-                  title={p.label}
-                  aria-label={p.label}
+                  title={presetLabel(p.label, t)}
+                  aria-label={presetLabel(p.label, t)}
                   className={`rounded-full ring-2 ${
                     avatar.type === "image" && avatar.src === p.src
                       ? "ring-black"
@@ -115,30 +131,30 @@ export default function AdminAvatar({ name }: { name: string }) {
                   }`}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={p.src} alt={p.label} className="w-12 h-12 rounded-full object-cover bg-white" />
+                  <img src={p.src} alt={presetLabel(p.label, t)} className="w-12 h-12 rounded-full object-cover bg-white" />
                 </button>
               ))}
             </div>
 
-            <p className="text-sm font-medium mt-5 mb-2">Tải ảnh từ máy</p>
+            <p className="text-sm font-medium mt-5 mb-2">{t("admin.avatar.upload")}</p>
             <input type="file" accept="image/*" onChange={onUpload} className="text-sm w-full" />
             {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
 
-            <p className="text-sm font-medium mt-5 mb-2">Chữ cái + màu nền</p>
+            <p className="text-sm font-medium mt-5 mb-2">{t("admin.avatar.letterColor")}</p>
             <div className="flex flex-wrap items-center gap-2">
               <input
                 value={letter}
                 onChange={(e) => setLetter(e.target.value.slice(0, 1).toUpperCase())}
                 maxLength={1}
                 className="border w-12 px-3 py-2 text-center outline-none focus:border-black"
-                aria-label="Chữ cái"
+                aria-label={t("admin.avatar.letterAria")}
               />
               <div className="flex gap-2">
                 {LETTER_COLORS.map((c) => (
                   <button
                     key={c}
                     onClick={() => setColor(c)}
-                    aria-label={`Màu ${c}`}
+                    aria-label={t("admin.avatar.colorAria", { color: c })}
                     className={`w-8 h-8 rounded-full ring-2 ${color === c ? "ring-black" : "ring-transparent"}`}
                     style={{ background: c }}
                   />
@@ -150,7 +166,7 @@ export default function AdminAvatar({ name }: { name: string }) {
                 }}
                 className="border px-4 py-2 text-sm hover:border-black"
               >
-                Dùng chữ này
+                {t("admin.avatar.useLetter")}
               </button>
             </div>
 
@@ -159,13 +175,13 @@ export default function AdminAvatar({ name }: { name: string }) {
                 onClick={() => pick({ type: "image", src: PANDA_AVATAR })}
                 className="underline text-sm"
               >
-                Về lại gấu trúc mặc định
+                {t("admin.avatar.backToPanda")}
               </button>
               <button
                 onClick={() => setOpen(false)}
                 className="bg-black text-white px-5 py-2.5 text-sm hover:bg-neutral-800"
               >
-                Xong
+                {t("admin.avatar.done")}
               </button>
             </div>
           </div>

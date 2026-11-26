@@ -35,6 +35,8 @@ CREATE TABLE IF NOT EXISTS "products" (
     "name" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
     "description" TEXT,
+    "name_en" TEXT,
+    "description_en" TEXT,
     "price" INTEGER NOT NULL,
     "old_price" INTEGER,
     "tag" TEXT,

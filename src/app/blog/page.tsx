@@ -1,11 +1,13 @@
 "use client";
 import { useState } from "react";
 import { posts } from "@/data/posts";
+import { useLanguage } from "@/context/LanguageContext";
 
 // Đúng thứ tự trong ảnh mẫu: All Blog Posts / Inspiration / Shopping / Fashion / Lifestyle / Minimalism
 const categories = ["All Blog Posts", "Inspiration", "Shopping", "Fashion", "Lifestyle", "Minimalism"];
 
 export default function BlogPage() {
+  const { t } = useLanguage();
   const [cat, setCat] = useState("All Blog Posts");
   const list = cat === "All Blog Posts" ? posts : posts.filter((p) => p.category === cat);
 
@@ -28,7 +30,7 @@ export default function BlogPage() {
         </h1>
 
         <nav
-          aria-label="Chuyên mục tin tức"
+          aria-label={t("blog.categoriesLabel")}
           className="absolute bottom-8 inset-x-0 flex flex-wrap justify-center gap-x-10 gap-y-3 px-4"
         >
           {categories.map((c) => (
@@ -50,7 +52,7 @@ export default function BlogPage() {
       {/* ===== Lưới bài viết theo chuyên mục đang chọn ===== */}
       <section className="container-x py-14 pb-20">
         {list.length === 0 ? (
-          <p className="text-center text-neutral-500">Chưa có bài viết trong chuyên mục này.</p>
+          <p className="text-center text-neutral-500">{t("blog.empty")}</p>
         ) : (
           <div className="grid md:grid-cols-3 gap-6">
             {list.map((p) => (
@@ -65,7 +67,7 @@ export default function BlogPage() {
                   <h3 className="font-semibold text-sm leading-snug">{p.title}</h3>
                   <p className="text-[11px] tracking-[0.25em] text-neutral-400 mt-3 uppercase">{p.category}</p>
                   <p className="text-sm text-neutral-500 mt-2 line-clamp-2">{p.excerpt}</p>
-                  <span className="text-[11px] tracking-widest mt-4 inline-block">↗ XEM NGAY</span>
+                  <span className="text-[11px] tracking-widest mt-4 inline-block">↗ {t("misc.viewNow")}</span>
                 </div>
               </article>
             ))}

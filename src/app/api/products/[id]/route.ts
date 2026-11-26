@@ -31,9 +31,12 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   const body = (await req.json()) as Record<string, any>; // Ep kieu: json() suy ra unknown do kieu global cua @cloudflare/workers-types
   const data: any = {};
   if (body.name !== undefined) data.name = String(body.name);
+  if (body.nameEn !== undefined) data.nameEn = body.nameEn ? String(body.nameEn) : null;
   if (body.slug !== undefined || body.name !== undefined)
     data.slug = String(body.slug ?? "").trim() || slugify(String(body.name ?? ""));
   if (body.description !== undefined) data.description = String(body.description);
+  if (body.descriptionEn !== undefined)
+    data.descriptionEn = body.descriptionEn ? String(body.descriptionEn) : null;
   if (body.price !== undefined) data.price = Number(body.price);
   if (body.oldPrice !== undefined) data.oldPrice = body.oldPrice ? Number(body.oldPrice) : null;
   if (body.tag !== undefined) data.tag = body.tag ? String(body.tag) : null;

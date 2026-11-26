@@ -26,14 +26,14 @@ const CATEGORIES = [
 ];
 
 const PRODUCTS = [
-  { id: 1, categoryId: 1, name: "Guide Pack Cap", slug: "guide-pack-cap", description: "Mũ lưỡi trai tối giản, chất liệu cotton thoáng mát, phù hợp mọi outfit.", price: 50000, oldPrice: null, tag: "best", sizes: ["Free"] },
-  { id: 2, categoryId: 5, name: "Blue Raincoat", slug: "blue-raincoat", description: "Áo khoác dài tông xanh pastel, form rộng thanh lịch cho mùa xuân.", price: 430000, oldPrice: null, tag: "best", sizes: ["S", "M", "L"] },
-  { id: 3, categoryId: 5, name: "Cotton Jacket", slug: "cotton-jacket", description: "Áo jacket cotton mềm, màu be dễ phối đồ, điểm nhấn cho set đồ tối giản.", price: 100000, oldPrice: null, tag: "best", sizes: ["S", "M", "L", "XL"] },
-  { id: 4, categoryId: 5, name: "Crewneck Blouse", slug: "crewneck-blouse", description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.", price: 215000, oldPrice: null, tag: "best", sizes: ["S", "M", "L"] },
-  { id: 5, categoryId: 3, name: "Eather Trainers", slug: "eather-trainers", description: "Giày trainers màu nude, đế êm, phong cách tối giản Hàn Quốc.", price: 310000, oldPrice: null, tag: "new", sizes: ["36", "37", "38", "39", "40"] },
-  { id: 6, categoryId: 5, name: "Cotton T-shirt", slug: "cotton-t-shirt", description: "Áo thun cotton màu cam đào, sale 26%, item must-have mùa hè.", price: 250000, oldPrice: 340000, tag: "sale", sizes: ["S", "M", "L", "XL"] },
-  { id: 7, categoryId: 2, name: "Azure Tote", slug: "azure-tote", description: "Túi tote đen quai vàng, sale 20%, đựng vừa laptop 14 inch.", price: 200000, oldPrice: 250000, tag: "sale", sizes: ["Free"] },
-  { id: 8, categoryId: 4, name: "Classic Topper", slug: "classic-topper", description: "Áo khoác dáng dài màu đen cổ điển, sang trọng và dễ phối.", price: 490000, oldPrice: null, tag: "new", sizes: ["M", "L", "XL"] },
+  { id: 1, categoryId: 1, name: "Guide Pack Cap", slug: "guide-pack-cap", description: "Mũ lưỡi trai tối giản, chất liệu cotton thoáng mát, phù hợp mọi outfit.", nameEn: "Guide Pack Cap", descriptionEn: "Minimalist baseball cap in breathable cotton — fits every outfit.", price: 50000, oldPrice: null, tag: "best", sizes: ["Free"] },
+  { id: 2, categoryId: 5, name: "Blue Raincoat", slug: "blue-raincoat", description: "Áo khoác dài tông xanh pastel, form rộng thanh lịch cho mùa xuân.", nameEn: "Blue Raincoat", descriptionEn: "Long pastel-blue coat with a relaxed, elegant cut for spring.", price: 430000, oldPrice: null, tag: "best", sizes: ["S", "M", "L"] },
+  { id: 3, categoryId: 5, name: "Cotton Jacket", slug: "cotton-jacket", description: "Áo jacket cotton mềm, màu be dễ phối đồ, điểm nhấn cho set đồ tối giản.", nameEn: "Cotton Jacket", descriptionEn: "Soft beige cotton jacket, easy to style — the finishing touch for a minimalist outfit.", price: 100000, oldPrice: null, tag: "best", sizes: ["S", "M", "L", "XL"] },
+  { id: 4, categoryId: 5, name: "Crewneck Blouse", slug: "crewneck-blouse", description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.", nameEn: "Crewneck Blouse", descriptionEn: "Classic crewneck blouse with a clean, effortless silhouette.", price: 215000, oldPrice: null, tag: "best", sizes: ["S", "M", "L"] },
+  { id: 5, categoryId: 3, name: "Eather Trainers", slug: "eather-trainers", description: "Giày trainers màu nude, đế êm, phong cách tối giản Hàn Quốc.", nameEn: "Eather Trainers", descriptionEn: "Nude trainers with a cushioned sole, Korean minimalist style.", price: 310000, oldPrice: null, tag: "new", sizes: ["36", "37", "38", "39", "40"] },
+  { id: 6, categoryId: 5, name: "Cotton T-shirt", slug: "cotton-t-shirt", description: "Áo thun cotton màu cam đào, sale 26%, item must-have mùa hè.", nameEn: "Cotton T-shirt", descriptionEn: "Peach cotton T-shirt, 26% off — a summer must-have.", price: 250000, oldPrice: 340000, tag: "sale", sizes: ["S", "M", "L", "XL"] },
+  { id: 7, categoryId: 2, name: "Azure Tote", slug: "azure-tote", description: "Túi tote đen quai vàng, sale 20%, đựng vừa laptop 14 inch.", nameEn: "Azure Tote", descriptionEn: "Black tote with gold handles, 20% off — fits a 14-inch laptop.", price: 200000, oldPrice: 250000, tag: "sale", sizes: ["Free"] },
+  { id: 8, categoryId: 4, name: "Classic Topper", slug: "classic-topper", description: "Áo khoác dáng dài màu đen cổ điển, sang trọng và dễ phối.", nameEn: "Classic Topper", descriptionEn: "Classic long black coat, timeless and easy to style.", price: 490000, oldPrice: null, tag: "new", sizes: ["M", "L", "XL"] },
 ];
 
 const POSTS = [
@@ -62,6 +62,8 @@ async function main() {
         name: p.name,
         slug: p.slug,
         description: p.description,
+        nameEn: p.nameEn ?? null,
+        descriptionEn: p.descriptionEn ?? null,
         price: p.price,
         oldPrice: p.oldPrice,
         tag: p.tag,

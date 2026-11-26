@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useLanguage } from "@/context/LanguageContext";
 
 /* Trang "Về chúng tôi" làm lại toàn bộ giống bản demo gốc (example.com/ve-chung-toi):
    hero ảnh cửa hàng + tiêu đề mảnh, câu chuyện thương hiệu + chữ ký Fashion Store,
@@ -29,6 +30,7 @@ const PER_VIEW = 3;
 const PAGES = Math.ceil(services.length / PER_VIEW);
 
 export default function AboutPage() {
+  const { t } = useLanguage();
   const [page, setPage] = useState(0);
 
   useEffect(() => {
@@ -41,9 +43,9 @@ export default function AboutPage() {
       {/* ===== Hero: ảnh cửa hàng, chữ "Về chúng tôi" trắng mảnh ở đáy ===== */}
       <section className="relative h-[440px] md:h-[560px] overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/about/about_image-2.jpg" alt="Về chúng tôi - Fashion Store" className="absolute inset-0 w-full h-full object-cover object-center" />
+        <img src="/images/about/about_image-2.jpg" alt={`${t("about.title")} - Fashion Store`} className="absolute inset-0 w-full h-full object-cover object-center" />
         <h1 className="absolute inset-x-0 bottom-10 md:bottom-14 text-center text-white text-6xl md:text-7xl font-light tracking-wide drop-shadow-sm">
-          Về chúng tôi
+          {t("about.title")}
         </h1>
       </section>
 
@@ -51,7 +53,7 @@ export default function AboutPage() {
       <section className="container-x py-16 md:py-24">
         <div className="grid md:grid-cols-2 gap-10 lg:gap-16 items-start">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/about/about_image-1.jpg" alt="Câu chuyện Fashion Store" className="w-full h-auto object-cover" />
+          <img src="/images/about/about_image-1.jpg" alt={t("about.storyAlt")} className="w-full h-auto object-cover" />
           <div>
             <h2 className="text-xl md:text-2xl font-medium text-neutral-900 leading-snug">
               The story of 4 Jahreszeiten began in 1985 with a small store located in Vienna, Austria and with one clear mission: to celebrate and empower women through exquisite clothing and refined accessories.
@@ -94,7 +96,7 @@ export default function AboutPage() {
 
       {/* ===== Dịch vụ (carousel) ===== */}
       <section className="container-x py-16 md:py-24">
-        <h2 className="text-center text-3xl md:text-4xl font-normal text-neutral-900">Dịch vụ</h2>
+        <h2 className="text-center text-3xl md:text-4xl font-normal text-neutral-900">{t("about.servicesTitle")}</h2>
         <div className="mt-14 overflow-hidden">
           <div className="flex transition-transform duration-700 ease-in-out" style={{ transform: `translateX(-${page * 100}%)` }}>
             {Array.from({ length: PAGES }).map((_, pi) => (
@@ -116,7 +118,7 @@ export default function AboutPage() {
             <button
               key={i}
               onClick={() => setPage(i)}
-              aria-label={`Dịch vụ trang ${i + 1}`}
+              aria-label={t("about.servicesPage", { n: i + 1 })}
               className={i === page ? "h-[2px] w-8 bg-neutral-800 transition-all" : "h-[2px] w-4 bg-neutral-300 transition-all"}
             />
           ))}
@@ -126,27 +128,27 @@ export default function AboutPage() {
       {/* ===== Banner Phong cách ===== */}
       <section className="relative h-[380px] md:h-[420px] overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/posts/post-5.jpg" alt="Phong cách Fashion Store" className="absolute inset-0 w-full h-full object-cover object-center" />
+        <img src="/images/posts/post-5.jpg" alt={t("about.styleAlt")} className="absolute inset-0 w-full h-full object-cover object-center" />
         <div className="absolute inset-0 bg-black/45" />
         <div className="relative h-full flex flex-col items-center justify-center text-center px-4">
-          <p className="text-white/90 text-lg md:text-xl font-light">Phong cách</p>
+          <p className="text-white/90 text-lg md:text-xl font-light">{t("about.styleEyebrow")}</p>
           <h2 className="mt-3 text-white text-3xl md:text-5xl font-semibold leading-tight max-w-4xl">
-            Tìm sự bình yên và hạnh phúc nội tâm của bạn
+            {t("about.styleTitle")}
           </h2>
           <Link href="/shop" className="mt-8 bg-white text-neutral-900 text-xs md:text-sm tracking-[0.2em] font-medium px-10 py-3.5 hover:bg-neutral-100 transition">
-            CỬA HÀNG
+            {t("nav.shop")}
           </Link>
         </div>
       </section>
 
       {/* ===== Hợp tác ===== */}
       <section className="container-x py-16 md:py-24">
-        <h2 className="text-center text-3xl md:text-4xl font-normal text-neutral-900">Hợp tác</h2>
+        <h2 className="text-center text-3xl md:text-4xl font-normal text-neutral-900">{t("about.partnersTitle")}</h2>
         <div className="mt-12 flex flex-wrap items-stretch justify-center gap-6">
           {[1, 2, 3, 4, 5].map((n) => (
             <div key={n} className="border border-neutral-200 w-[240px] h-[110px] grid place-items-center bg-white">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`/images/about/brand-${n}.jpg`} alt={`Đối tác ${n}`} className="max-h-[64px] max-w-[180px] object-contain" />
+              <img src={`/images/about/brand-${n}.jpg`} alt={t("about.partnerAlt", { n })} className="max-h-[64px] max-w-[180px] object-contain" />
             </div>
           ))}
         </div>

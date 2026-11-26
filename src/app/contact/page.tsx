@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   pushMessage,
   newId,
@@ -14,6 +15,7 @@ import {
    trả lời của shop và nhắn tiếp — không cần đăng nhập, mọi thứ lưu trong
    CSDL như tin nhắn gốc. */
 function ContactChatLookup() {
+  const { t } = useLanguage();
   const [email, setEmail] = useState("");
   const [looking, setLooking] = useState(false);
   const [lookedUp, setLookedUp] = useState(false);
@@ -36,7 +38,7 @@ function ContactChatLookup() {
       setFound(await fetchMessagesByEmail(mail));
       setLookedUp(true);
     } catch {
-      setLookupError("Chưa tra cứu được, bạn thử lại nhé.");
+      setLookupError(t("contact.lookupError"));
     } finally {
       setLooking(false);
     }
@@ -64,7 +66,7 @@ function ContactChatLookup() {
       setReplies((prev) => [...prev, created]);
       setReplyBody("");
     } catch {
-      setReplyError("Gửi tin nhắn chưa được, bạn thử lại nhé.");
+      setReplyError(t("contact.replyError"));
     } finally {
       setSending(false);
     }
@@ -73,9 +75,9 @@ function ContactChatLookup() {
   return (
     <section className="container-x py-14">
       <div className="max-w-3xl mx-auto bg-[#f5f6f7] px-8 py-10">
-        <h2 className="text-2xl font-light text-neutral-900">Đã gửi tin nhắn trước đó?</h2>
+        <h2 className="text-2xl font-light text-neutral-900">{t("contact.lookupTitle")}</h2>
         <p className="text-sm text-neutral-500 mt-2 leading-relaxed">
-          Nhập email bạn đã dùng để gửi tin, để xem trả lời của shop và nhắn tiếp.
+          {t("contact.lookupText")}
         </p>
 
         <form onSubmit={lookup} className="mt-6 flex flex-col sm:flex-row gap-3">
@@ -84,7 +86,7 @@ function ContactChatLookup() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email của bạn"
+            placeholder={t("footer.yourEmail")}
             className="flex-1 bg-white border border-neutral-300 px-4 py-3 text-sm outline-none focus:border-black placeholder:text-neutral-500"
           />
           <button
@@ -92,7 +94,7 @@ function ContactChatLookup() {
             disabled={looking}
             className="bg-[#171a21] text-white px-6 py-3 text-sm tracking-wide font-heading hover:bg-black transition disabled:opacity-50"
           >
-            {looking ? "Đang tìm..." : "Xem tin nhắn của tôi"}
+            {looking ? t("contact.searching") : t("contact.viewMyMessages")}
           </button>
         </form>
         {lookupError && <p className="text-sm text-red-600 mt-3">{lookupError}</p>}
@@ -100,13 +102,13 @@ function ContactChatLookup() {
         {lookedUp && !openMsg && (
           <div className="mt-8">
             {found.length === 0 ? (
-              <p className="text-sm text-neutral-500">Không tìm thấy tin nhắn nào với email này.</p>
+              <p className="text-sm text-neutral-500">{t("contact.noMessages")}</p>
             ) : (
               <ul className="divide-y divide-neutral-200 bg-white border border-neutral-200">
                 {found.map((m) => (
                   <li key={m.id}>
                     <button onClick={() => openThread(m)} className="w-full text-left px-5 py-4 hover:bg-neutral-50">
-                      <span className="block font-medium text-sm">{m.subject || "(Không có chủ đề)"}</span>
+                      <span className="block font-medium text-sm">{m.subject || t("contact.noSubject")}</span>
                       <span className="block text-xs text-neutral-500 mt-1">
                         {new Date(m.date).toLocaleString("vi-VN")}
                       </span>
@@ -121,9 +123,9 @@ function ContactChatLookup() {
         {openMsg && (
           <div className="mt-8 bg-white border border-neutral-200 p-5 md:p-6">
             <button onClick={() => setOpenMsg(null)} className="text-sm underline">
-              ← Quay lại danh sách
+              {t("contact.backToList")}
             </button>
-            <p className="font-medium mt-4">{openMsg.subject || "(Không có chủ đề)"}</p>
+            <p className="font-medium mt-4">{openMsg.subject || t("contact.noSubject")}</p>
             <p className="text-xs text-neutral-500 mt-1">
               {openMsg.name} · {new Date(openMsg.date).toLocaleString("vi-VN")}
             </p>
@@ -155,7 +157,7 @@ function ContactChatLookup() {
               <textarea
                 value={replyBody}
                 onChange={(e) => setReplyBody(e.target.value)}
-                placeholder="Nhắn tiếp cho shop..."
+                placeholder={t("contact.replyPlaceholder")}
                 rows={3}
                 className="w-full border border-neutral-300 px-4 py-3 text-sm outline-none focus:border-black resize-y"
               />
@@ -165,7 +167,7 @@ function ContactChatLookup() {
                 disabled={sending || !replyBody.trim()}
                 className="bg-[#171a21] text-white px-6 py-3 text-sm mt-3 hover:bg-black transition disabled:opacity-50"
               >
-                {sending ? "Đang gửi..." : "Gửi"}
+                {sending ? t("contact.sending") : t("contact.send")}
               </button>
             </div>
           </div>
@@ -176,6 +178,7 @@ function ContactChatLookup() {
 }
 
 export default function ContactPage() {
+  const { t } = useLanguage();
   const [sent, setSent] = useState(false);
 
   return (
@@ -189,16 +192,14 @@ export default function ContactPage() {
           className="absolute inset-0 w-full h-full object-cover"
         />
         <h1 className="relative font-heading font-thin text-6xl md:text-8xl tracking-wide text-[#20242e]">
-          Liên hệ
+          {t("contact.title")}
         </h1>
       </section>
 
       {/* ===== Giới thiệu ===== */}
       <section className="container-x pt-14 pb-6">
         <p className="max-w-3xl mx-auto text-center text-neutral-500 leading-relaxed">
-          Công ty thiết kế website và lập trình phần mềm / web, app · Văn phòng
-          bắt đầu đi vào hoạt động và luôn sẵn sàng để tiếp nhận, tư vấn và hỗ
-          trợ khách hàng
+          {t("contact.intro")}
         </p>
       </section>
 
@@ -208,7 +209,7 @@ export default function ContactPage() {
           <div className="flex items-start gap-6">
             <span className="text-2xl w-8 text-center" aria-hidden>⌂</span>
             <span className="w-32 shrink-0 text-[13px] font-medium tracking-wide text-neutral-600 pt-1">
-              ĐỊA CHỈ
+              {t("contact.addressLabel")}
             </span>
             <span className="text-[15px] text-neutral-900">
               123 Đường Lê Lợi, Quận 1, Thành phố Hồ Chí Minh
@@ -217,7 +218,7 @@ export default function ContactPage() {
           <div className="flex items-start gap-6">
             <span className="text-2xl w-8 text-center" aria-hidden>☎</span>
             <span className="w-32 shrink-0 text-[13px] font-medium tracking-wide text-neutral-600 pt-1">
-              SỐ ĐIỆN<br />THOẠI
+              {t("contact.phoneLabel1")}<br />{t("contact.phoneLabel2")}
             </span>
             <a href="tel:0123456789" className="text-[15px] text-neutral-900 pt-1 hover:underline">
               0123 456 789
@@ -247,16 +248,16 @@ export default function ContactPage() {
         </div>
 
         <div className="relative bg-[#f5f6f7] px-8 py-12 md:px-16">
-          <h2 className="text-3xl font-light text-neutral-900">Thông tin liên hệ</h2>
+          <h2 className="text-3xl font-light text-neutral-900">{t("contact.formTitle")}</h2>
 
           {sent ? (
             <div className="mt-10 bg-white border border-emerald-200 p-6">
-              <p className="font-medium text-emerald-700">Đã gửi liên hệ thành công ✓</p>
+              <p className="font-medium text-emerald-700">{t("contact.sentTitle")}</p>
               <p className="text-sm text-neutral-500 mt-2">
-                Cảm ơn bạn đã liên hệ Fashion Store. Chúng tôi sẽ phản hồi qua email trong thời gian sớm nhất.
+                {t("contact.sentText")}
               </p>
               <button onClick={() => setSent(false)} className="text-sm underline mt-4">
-                Gửi thêm một liên hệ khác
+                {t("contact.sendAnother")}
               </button>
             </div>
           ) : (
@@ -277,13 +278,13 @@ export default function ContactPage() {
                   });
                   setSent(true);
                 } catch {
-                  alert("Gửi tin nhắn chưa lưu được, bạn thử lại nhé.");
+                  alert(t("contact.sendFailed"));
                 }
               }}
             >
               <div>
-                <label htmlFor="ct-name" className="sr-only">Họ và Tên</label>
-                <input id="ct-name" name="name" required placeholder="Họ và Tên"
+                <label htmlFor="ct-name" className="sr-only">{t("contact.nameLabel")}</label>
+                <input id="ct-name" name="name" required placeholder={t("contact.nameLabel")}
                   className="w-full bg-transparent border-b border-neutral-300 focus:border-black outline-none py-3 placeholder:text-neutral-500" />
               </div>
               <div>
@@ -292,24 +293,24 @@ export default function ContactPage() {
                   className="w-full bg-transparent border-b border-neutral-300 focus:border-black outline-none py-3 placeholder:text-neutral-500" />
               </div>
               <div>
-                <label htmlFor="ct-subject" className="sr-only">Chủ đề</label>
-                <input id="ct-subject" name="subject" placeholder="Chủ đề"
+                <label htmlFor="ct-subject" className="sr-only">{t("contact.subjectLabel")}</label>
+                <input id="ct-subject" name="subject" placeholder={t("contact.subjectLabel")}
                   className="w-full bg-transparent border-b border-neutral-300 focus:border-black outline-none py-3 placeholder:text-neutral-500" />
               </div>
               <div>
-                <label htmlFor="ct-message" className="sr-only">Nội dung</label>
-                <textarea id="ct-message" name="message" required placeholder="Nội dung" rows={4}
+                <label htmlFor="ct-message" className="sr-only">{t("contact.messageLabel")}</label>
+                <textarea id="ct-message" name="message" required placeholder={t("contact.messageLabel")} rows={4}
                   className="w-full bg-transparent border-b border-neutral-300 focus:border-black outline-none py-3 placeholder:text-neutral-500 resize-y" />
               </div>
               <button type="submit"
                 className="w-full bg-[#171a21] text-white py-5 text-sm tracking-[0.25em] font-heading hover:bg-black transition">
-                GỬI
+                {t("contact.sendButton")}
               </button>
             </form>
           )}
 
           <button
-            aria-label="Về đầu trang"
+            aria-label={t("footer.backToTop")}
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             className="absolute right-5 top-1/2 w-11 h-11 rounded-full border border-neutral-400 bg-white/70 grid place-items-center hover:bg-white"
           >

@@ -11,7 +11,9 @@ have separate layouts and separate logins.
   customers, subscribers, messages, staff, settings, and an activity log.
   The admin area has no shop header, footer, or search bar.
 
-The interface is in Vietnamese. Sample products use English names and can be
+The interface is bilingual — Vietnamese by default, with an English
+toggle (VI | EN) in the shop header and in the admin header (see
+"Languages" below). Sample products use English names and can be
 replaced with your own catalogue.
 
 ## Tech stack
@@ -234,6 +236,107 @@ Replace `<domain>` with your public domain:
 3. Set `PAYMENTS_SIMULATION=false` (or remove the variable).
 4. Re-register the webhook URLs above with the live credentials.
 
+## Languages
+
+The shop and the admin panel support **134 languages** (the Google
+Translate language list, from Arabic to Zulu), with **English as the
+default**. A language dropdown sits in the shop header, in the admin
+header, and on the admin login screen; it lists every language by its
+native name + English name and has a search box. The choice is saved
+in the browser's localStorage (`fashion-lang`) and kept on the next
+visit. Currency stays VND and prices, routes, and the checkout/payment
+flow are unchanged.
+
+- **How it works:** `src/lib/i18n/` holds the dictionaries.
+  Vietnamese + English live in `sections/common.ts`,
+  `sections/shop.ts`, `sections/admin.ts` and are bundled with the app.
+  The other 132 languages live in `src/lib/i18n/dictionaries/<code>.ts`
+  and are **lazy-loaded** — each language is downloaded only when a
+  visitor selects it (`loader.ts`, dynamic `import()`, cached in
+  memory), so the initial bundle stays small. The registry of all 134
+  languages (ISO code, English name, native name, text direction) is
+  `src/lib/i18n/languages.ts`. `src/context/LanguageContext.tsx`
+  provides `useLanguage()` → `{ lang, setLang, t, loading }`;
+  components render `t("section.key")`.
+- **Fallback:** a missing string in the active language falls back to
+  English, then Vietnamese, then the key itself — the page never shows
+  a blank label. Run `node scripts/check-i18n.cjs` to verify every
+  language file contains the complete key set.
+- **RTL:** for right-to-left languages (Arabic, Hebrew, Persian, Urdu,
+  Pashto, Sindhi, Uyghur, Yiddish, Divehi, Central Kurdish) the
+  `<html>` element gets `dir="rtl"` (and `lang` is always set), so the
+  layout mirrors. Other languages use `dir="ltr"`.
+- **Product names / descriptions:** the `products` table has `name_en`
+  and `description_en` columns (added in v6). English is shown for
+  every non-Vietnamese language, falling back to the Vietnamese value
+  when empty (`productName()` / `productDescription()` in
+  `src/lib/i18n`). The 8 sample products ship with English names and
+  descriptions in `fashion-store-d1-insert.sql` and `prisma/seed.cjs`.
+  No per-language product columns — other languages fall back to
+  English by design.
+- **Emails stay bilingual (VI + EN)** — see "Emails" below. Email
+  templates are NOT translated into 134 languages.
+- **How to add a language:** add one entry to `LANGUAGES` in
+  `src/lib/i18n/languages.ts`, add a dictionary file
+  `src/lib/i18n/dictionaries/<code>.ts` with the same 688 keys (copy
+  the structure of the English dictionary), then run
+  `node scripts/check-i18n.cjs` to check coverage.
+- **How to change the default:** change `DEFAULT_LANG` in
+  `src/lib/i18n/languages.ts` (and the `<html lang="en">` in
+  `src/app/layout.tsx`).
+- **Translation quality:** Vietnamese and English are the reference
+  translations. Translations for smaller languages are best-effort —
+  short UI strings translated without full context; if a string reads
+  oddly in a language, it falls back to English for that key only when
+  the key is missing, so a weak translation still shows.
+- **Upgrading an existing database:** run the migration once (local
+  and/or live) so the two new columns exist and the 8 sample products
+  get their English text:
+  ```bash
+  npx wrangler d1 execute fashion-store --local  --file=fashion-store-d1-i18n-migration.sql
+  npx wrangler d1 execute fashion-store --remote --file=fashion-store-d1-i18n-migration.sql
+  ```
+
+## Emails
+
+Transactional emails are sent through **Resend** (https://resend.com)
+using its HTTP API (`POST https://api.resend.com/emails`, plain `fetch`
+in `src/lib/email.ts`) — no SMTP and no extra dependency, so it works
+on the Cloudflare Edge Runtime. Every email is bilingual (Vietnamese
+and English sections in one message).
+
+| When | To | Subject |
+|---|---|---|
+| Customer registers (`POST /api/auth/register`) | the new customer's email | Chào mừng bạn đến với Fashion Store! \| Welcome to Fashion Store! |
+| A new order is placed (`POST /api/orders`) | admin (`ADMIN_EMAIL`, or the admin account's email) | `[Fashion Store] Đơn hàng mới <code> \| New order <code>` |
+| An online payment is verified as paid (webhooks, return-page verify, simulation) | admin | `[Fashion Store] Đã nhận thanh toán <code> \| Payment received <code>` |
+
+- **No keys = no mail, no breakage.** With `RESEND_API_KEY` unset,
+  sending is skipped silently (logged only). A failed send never fails
+  a registration, an order, or a payment confirmation — every send is
+  wrapped in try/catch and runs in the background (`waitUntil` on
+  Pages, fire-and-forget locally).
+- **No duplicates.** The payment email is sent from `markOrderPaid()`
+  (`src/lib/payments/common.ts`), which only fires on the first
+  transition to paid — a duplicate webhook or a second verification
+  does not send again. Simulated payments still send the mail, but the
+  subject and body say "(giả lập / simulated)" so the admin does not
+  mistake it for real money.
+- **Setup (Resend):** create an account at https://resend.com, create
+  an API key at https://resend.com/api-keys, and verify your sending
+  domain at https://resend.com/domains (until the domain is verified,
+  Resend only delivers to the Resend account owner's own email).
+  Then set:
+  - `RESEND_API_KEY` — the API key.
+  - `EMAIL_FROM` — sender address, e.g. `Fashion Store <hello@your-domain.com>`.
+  - `ADMIN_EMAIL` — where order/payment notifications go (a real
+    mailbox; if empty, the shop uses the admin account's email from
+    the database, default `admin@store.local`).
+- **Where to paste the keys:** locally, copy `.env.example` to
+  `.env.local`; live, paste them in the Cloudflare Pages project →
+  Settings → Environment variables (production). Never commit real
+  keys.
+
 ## Project structure
 
 - `src/app/` — shop pages (`page.tsx`, `shop`, `product/[slug]`,
@@ -245,10 +348,11 @@ Replace `<domain>` with your public domain:
 - `src/components/` — `Header`, `Hero`, `ProductCard`, `CategoryGrid`,
   `BlogSection`, `Footer`, `CartDrawer`, `admin/` components
 - `src/context/` — `AuthContext` (shop accounts), `AdminAuthContext`
-  (admin login), `CartContext`
+  (admin login), `CartContext`, `LanguageContext` (VI/EN toggle)
 - `src/lib/` — `store.ts` (API lists), `prisma.ts`, `auth.ts`
   (server-side auth: password hashing, sessions, cookies), `activity.ts`
-  (admin activity log), `coupons.ts`, `roles.ts`
+  (admin activity log), `coupons.ts`, `roles.ts`, `email.ts` (Resend
+  transactional emails), `i18n/` (dictionaries + `t()` helper)
 - `scripts/hash-password.cjs` — generate a salt + SHA-256 hash for a
   password (used to seed demo accounts in the SQL files)
 - `prisma/schema.prisma` — database schema (SQLite / D1)
@@ -279,7 +383,8 @@ Replace `<domain>` with your public domain:
   To change a demo password, generate a new hash with
   `node scripts/hash-password.cjs <mat-khau-moi>` and update the row.
 - **LocalStorage keys**: `fashion-cart`, `fashion-coupons`,
-  `fashion-activity-log`, `fashion-admin-avatar` (see `src/context/*`,
+  `fashion-activity-log`, `fashion-admin-avatar`, `fashion-lang`
+  (saved language, `vi` or `en`) (see `src/context/*`,
   `src/lib/*`). Sessions are HTTP-only cookies (`fashion_session` for
   the shop, `admin_session` for `/admin`) — no account data is stored
   in localStorage.

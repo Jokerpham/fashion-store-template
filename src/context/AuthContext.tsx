@@ -11,6 +11,7 @@
    admin_session), không dùng chung phiên mua sắm. */
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import type { StaffRole } from "@/lib/roles";
+import { useLanguage } from "@/context/LanguageContext";
 
 export type User = { name: string; email: string; role?: StaffRole | "customer"; phone?: string };
 type Result = { ok: boolean; error?: string };
@@ -40,25 +41,28 @@ function toUser(u: { name: string; email: string; role: string; phone?: string |
   return { name: u.name, email: u.email, role: u.role as User["role"], phone: u.phone ?? undefined };
 }
 
-async function callAuth(path: string, init?: RequestInit): Promise<{ data: any; error?: string }> {
-  try {
-    const res = await fetch(path, {
-      headers: { "Content-Type": "application/json" },
-      ...init,
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      return { data: null, error: (data as Record<string, any>).error || `Lỗi kết nối (${res.status})` };
-    }
-    return { data };
-  } catch {
-    return { data: null, error: "Không kết nối được máy chủ. Hãy thử lại." };
-  }
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const { t } = useLanguage();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Gọi API xác thực: lỗi HTTP dùng thông báo của server, lỗi mạng thì
+  // dùng chuỗi dịch sẵn (auth.connectionError / auth.serverUnreachable).
+  async function callAuth(path: string, init?: RequestInit): Promise<{ data: any; error?: string }> {
+    try {
+      const res = await fetch(path, {
+        headers: { "Content-Type": "application/json" },
+        ...init,
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        return { data: null, error: (data as Record<string, any>).error || t("auth.connectionError", { status: res.status }) };
+      }
+      return { data };
+    } catch {
+      return { data: null, error: t("auth.serverUnreachable") };
+    }
+  }
 
   // Khôi phục phiên shop từ cookie (kiểm tra phía server).
   useEffect(() => {
@@ -80,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       method: "POST",
       body: JSON.stringify({ name, email, password }),
     });
-    if (error || !data?.user) return { ok: false, error: error || "Đăng ký thất bại." };
+    if (error || !data?.user) return { ok: false, error: error || t("auth.registerFailed") };
     setUser(toUser(data.user));
     return { ok: true };
   };
@@ -90,7 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       method: "POST",
       body: JSON.stringify({ identifier, password, scope: "shop", remember }),
     });
-    if (error || !data?.user) return { ok: false, error: error || "Đăng nhập thất bại." };
+    if (error || !data?.user) return { ok: false, error: error || t("auth.loginFailed") };
     setUser(toUser(data.user));
     return { ok: true };
   };
@@ -104,7 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const changePassword: AuthCtx["changePassword"] = async (currentPassword, newPassword) => {
-    if (!user) return { ok: false, error: "Bạn cần đăng nhập trước khi đổi mật khẩu." };
+    if (!user) return { ok: false, error: t("auth.needLogin") };
     const { error } = await callAuth("/api/auth/change-password", {
       method: "POST",
       body: JSON.stringify({ currentPassword, newPassword, scope: "shop" }),
@@ -128,11 +132,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const n = name.trim();
     const e = email.trim().toLowerCase();
     if (!n || !e || password.length < 6) {
-      return { ok: false, error: "Hãy nhập đủ tên, email và mật khẩu từ 6 ký tự." };
+      return { ok: false, error: t("auth.invalidStaff") };
     }
     const ph = phone?.trim() || undefined;
     if (ph && !validPhone(ph)) {
-      return { ok: false, error: "Số điện thoại không hợp lệ (cần 9–12 chữ số)." };
+      return { ok: false, error: t("auth.invalidPhone") };
     }
     const { error } = await callAuth("/api/auth/staff", {
       method: "POST",

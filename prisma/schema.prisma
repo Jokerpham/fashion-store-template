@@ -66,6 +66,10 @@ model Product {
   name        String
   slug        String         @unique
   description String?
+  /* Tên / mô tả tiếng Anh (v6): hiện khi ngôn ngữ là EN, thiếu thì rơi
+     về name / description tiếng Việt (xem src/lib/i18n). */
+  nameEn      String?        @map("name_en")
+  descriptionEn String?      @map("description_en")
   price       Int
   oldPrice    Int?           @map("old_price")
   tag         String?

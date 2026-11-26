@@ -14,6 +14,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import type { StaffRole } from "@/lib/roles";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
 
 export type AdminUser = { name: string; email: string; role: StaffRole; phone?: string };
 type Result = { ok: boolean; error?: string };
@@ -36,7 +37,8 @@ function toAdminUser(u: { name: string; email: string; role: string; phone?: str
   return { name: u.name, email: u.email, role: u.role as StaffRole, phone: u.phone ?? undefined };
 }
 
-async function callAuth(path: string, init?: RequestInit): Promise<{ data: any; error?: string }> {
+async function callAuth(path: string, init?: RequestInit, tr?: (key: string, vars?: Record<string, string | number>) => string): Promise<{ data: any; error?: string }> {
+  const t = tr ?? ((key: string, vars?: Record<string, string | number>) => key);
   try {
     const res = await fetch(path, {
       headers: { "Content-Type": "application/json" },
@@ -44,16 +46,17 @@ async function callAuth(path: string, init?: RequestInit): Promise<{ data: any; 
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      return { data: null, error: (data as Record<string, any>).error || `Lỗi kết nối (${res.status})` };
+      return { data: null, error: (data as Record<string, any>).error || t("auth.connectionError", { status: res.status }) };
     }
     return { data };
   } catch {
-    return { data: null, error: "Không kết nối được máy chủ. Hãy thử lại." };
+    return { data: null, error: t("auth.serverUnreachable") };
   }
 }
 
 export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const auth = useAuth();
+  const { t } = useLanguage();
   const [admin, setAdmin] = useState<AdminUser | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -61,7 +64,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const { data } = await callAuth("/api/auth/me?scope=admin");
+      const { data } = await callAuth("/api/auth/me?scope=admin", undefined, t);
       if (!cancelled) {
         if (data?.user) setAdmin(toAdminUser(data.user));
         setLoading(false);
@@ -76,8 +79,8 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     const { data, error } = await callAuth("/api/auth/login", {
       method: "POST",
       body: JSON.stringify({ identifier: email.trim(), password, scope: "admin" }),
-    });
-    if (error || !data?.user) return { ok: false, error: error || "Đăng nhập thất bại." };
+    }, t);
+    if (error || !data?.user) return { ok: false, error: error || t("auth.loginFailed") };
     setAdmin(toAdminUser(data.user));
     return { ok: true };
   };
@@ -86,16 +89,16 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     await callAuth("/api/auth/logout", {
       method: "POST",
       body: JSON.stringify({ scope: "admin" }),
-    });
+    }, t);
     setAdmin(null);
   };
 
   const changeAdminPassword: AdminAuthCtx["changeAdminPassword"] = async (currentPassword, newPassword) => {
-    if (!admin) return { ok: false, error: "Bạn cần đăng nhập trước khi đổi mật khẩu." };
+    if (!admin) return { ok: false, error: t("auth.needLogin") };
     const { error } = await callAuth("/api/auth/change-password", {
       method: "POST",
       body: JSON.stringify({ currentPassword, newPassword, scope: "admin" }),
-    });
+    }, t);
     if (error) return { ok: false, error };
     return { ok: true };
   };

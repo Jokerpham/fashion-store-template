@@ -1,4 +1,6 @@
+"use client";
 import Link from "next/link";
+import { useLanguage } from "@/context/LanguageContext";
 
 const items = [
   {
@@ -32,6 +34,7 @@ function ExternalIcon() {
 }
 
 export default function CollectionsSection() {
+  const { t } = useLanguage();
   return (
     <div id="collections" className="mt-16 scroll-mt-24">
       <h2 className="font-heading font-bold text-[20px] tracking-wide text-neutral-800">
@@ -57,7 +60,7 @@ export default function CollectionsSection() {
                 href="/blog"
                 className="inline-flex items-center gap-2 mt-6 text-[13px] tracking-[0.15em] font-medium text-neutral-700 hover:text-black"
               >
-                <ExternalIcon /> XEM NGAY
+                <ExternalIcon /> {t("misc.viewNow")}
               </Link>
             </div>
           </article>

@@ -2,22 +2,29 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useLanguage } from "@/context/LanguageContext";
 
-const SLIDES = [
-  { img: "/images/site/slide-1.jpg", title: "Bộ sưu tập “Mùa xuân”" },
-  { img: "/images/site/slide-3.jpg", title: "Hè năng động" },
-  { img: "/images/site/slide-5.jpg", title: "Ấm ấp Thu / Đông" },
+const SLIDE_IMGS = [
+  "/images/site/slide-1.jpg",
+  "/images/site/slide-3.jpg",
+  "/images/site/slide-5.jpg",
 ];
 const AUTOPLAY_MS = 4000; // tự chuyển ảnh sau mỗi 4 giây
 
 export default function Hero() {
+  const { t } = useLanguage();
+  const SLIDES = [
+    { img: SLIDE_IMGS[0], title: t("home.heroSlide1") },
+    { img: SLIDE_IMGS[1], title: t("home.heroSlide2") },
+    { img: SLIDE_IMGS[2], title: t("home.heroSlide3") },
+  ];
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const go = useCallback(
     (i: number) => setIndex(((i % SLIDES.length) + SLIDES.length) % SLIDES.length),
-    []
+    [SLIDES.length]
   );
   const next = useCallback(() => go(index + 1), [go, index]);
   const prev = useCallback(() => go(index - 1), [go, index]);
@@ -31,7 +38,7 @@ export default function Hero() {
     return () => {
       if (timer.current) clearInterval(timer.current);
     };
-  }, [paused, index]);
+  }, [paused, index, SLIDES.length]);
 
   return (
     <section
@@ -39,7 +46,7 @@ export default function Hero() {
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       aria-roledescription="carousel"
-      aria-label="Banner trang chủ"
+      aria-label={t("home.heroBanner")}
     >
       <div className="relative h-[480px] md:h-[640px]">
         {/* Lớp phủ tối mờ dần ở mép trên — giúp chữ menu trắng trên header trong suốt luôn nổi rõ trên ảnh */}
@@ -67,7 +74,7 @@ export default function Hero() {
                   href="/shop"
                   className="inline-block mt-5 bg-white text-ink font-display text-[11px] md:text-xs tracking-[0.2em] uppercase px-6 py-3 hover:bg-ink hover:text-white transition-colors"
                 >
-                  Đến cửa hàng
+                  {t("home.heroShopNow")}
                 </Link>
               </div>
             </div>
@@ -80,7 +87,7 @@ export default function Hero() {
             <button
               key={s.img}
               onClick={() => go(i)}
-              aria-label={`Ảnh ${i + 1}: ${s.title}`}
+              aria-label={t("home.heroSlideAlt", { n: i + 1, title: s.title })}
               className={`rounded-full transition-all duration-300 ${
                 i === index ? "w-7 h-2.5 bg-ink" : "w-2.5 h-2.5 bg-ink/35 hover:bg-ink/60"
               }`}
@@ -90,10 +97,10 @@ export default function Hero() {
 
         {/* Nút Prev / Next góc phải dưới (giống trang mẫu) */}
         <div className="absolute bottom-0 right-0 z-20 flex bg-[#f3efe9]/85 backdrop-blur-[2px]">
-          <button onClick={prev} aria-label="Ảnh trước" className="px-4 md:px-5 py-3 md:py-3.5 text-2xl leading-none text-ink/70 hover:text-ink transition-colors">
+          <button onClick={prev} aria-label={t("home.heroPrev")} className="px-4 md:px-5 py-3 md:py-3.5 text-2xl leading-none text-ink/70 hover:text-ink transition-colors">
             &#8249;
           </button>
-          <button onClick={next} aria-label="Ảnh tiếp theo" className="px-4 md:px-5 py-3 md:py-3.5 text-2xl leading-none text-ink/70 hover:text-ink transition-colors">
+          <button onClick={next} aria-label={t("home.heroNext")} className="px-4 md:px-5 py-3 md:py-3.5 text-2xl leading-none text-ink/70 hover:text-ink transition-colors">
             &#8250;
           </button>
         </div>

@@ -3,11 +3,13 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { formatPrice } from "@/lib/format";
+import { useLanguage } from "@/context/LanguageContext";
 
 /* Trang hiển thị mã VietQR SePay: khách quét mã chuyển khoản, trang tự
    kiểm tra trạng thái đơn mỗi 5 giây — khi webhook SePay báo đã nhận tiền
    thì tự chuyển sang trang kết quả. */
 function PayInner() {
+  const { t } = useLanguage();
   const params = useSearchParams();
   const router = useRouter();
   const orderCode = params.get("order") ?? "";
@@ -37,10 +39,10 @@ function PayInner() {
         } else if (d.qrUrl) {
           setInfo(d);
         } else {
-          setErr(d.error || "Không tạo được mã QR");
+          setErr(d.error || t("checkout.payQrError"));
         }
       })
-      .catch(() => setErr("Không kết nối được máy chủ"));
+      .catch(() => setErr(t("checkout.payServerError")));
   }, [orderCode, router]);
 
   useEffect(() => {
@@ -65,10 +67,10 @@ function PayInner() {
   if (err) {
     return (
       <div className="container-x pt-16 pb-24 text-center">
-        <h1 className="text-2xl font-light">Không tạo được mã QR</h1>
+        <h1 className="text-2xl font-light">{t("checkout.payQrError")}</h1>
         <p className="text-neutral-500 mt-4">{err}</p>
         <Link href="/checkout" className="inline-block mt-6 bg-[#23232c] text-white px-6 py-3 text-sm tracking-widest">
-          QUAY LẠI THANH TOÁN
+          {t("checkout.backToCheckout")}
         </Link>
       </div>
     );
@@ -76,32 +78,31 @@ function PayInner() {
   if (!info) {
     return (
       <div className="container-x pt-16 pb-24 text-center">
-        <p className="text-neutral-500">Đang tạo mã VietQR...</p>
+        <p className="text-neutral-500">{t("checkout.payCreating")}</p>
       </div>
     );
   }
   return (
     <div className="container-x pt-12 pb-20 max-w-xl mx-auto text-center">
-      <h1 className="text-2xl font-light tracking-widest">QUÉT MÃ ĐỂ THANH TOÁN</h1>
+      <h1 className="text-2xl font-light tracking-widest">{t("checkout.payScanTitle")}</h1>
       <p className="text-neutral-500 mt-3 text-sm">
-        Đơn hàng <span className="font-medium text-black">{orderCode}</span> —{" "}
+        {t("checkout.payOrderPrefix")} <span className="font-medium text-black">{orderCode}</span> —{" "}
         {formatPrice(info.amount)}
       </p>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={info.qrUrl} alt="Mã VietQR thanh toán" className="mx-auto mt-6 w-72 h-72 border" />
+      <img src={info.qrUrl} alt={t("checkout.payQrAlt")} className="mx-auto mt-6 w-72 h-72 border" />
       <div className="text-left border mt-6 divide-y text-sm">
-        <div className="flex justify-between px-4 py-3"><span className="text-neutral-500">Ngân hàng</span><span className="font-medium">{info.bank}</span></div>
-        <div className="flex justify-between px-4 py-3"><span className="text-neutral-500">Số tài khoản</span><span className="font-medium">{info.accountNumber}</span></div>
-        <div className="flex justify-between px-4 py-3"><span className="text-neutral-500">Chủ tài khoản</span><span className="font-medium">{info.accountName}</span></div>
-        <div className="flex justify-between px-4 py-3"><span className="text-neutral-500">Nội dung chuyển khoản</span><span className="font-medium">{info.content}</span></div>
-        <div className="flex justify-between px-4 py-3"><span className="text-neutral-500">Số tiền</span><span className="font-medium">{formatPrice(info.amount)}</span></div>
+        <div className="flex justify-between px-4 py-3"><span className="text-neutral-500">{t("checkout.payBank")}</span><span className="font-medium">{info.bank}</span></div>
+        <div className="flex justify-between px-4 py-3"><span className="text-neutral-500">{t("checkout.payAccountNumber")}</span><span className="font-medium">{info.accountNumber}</span></div>
+        <div className="flex justify-between px-4 py-3"><span className="text-neutral-500">{t("checkout.payAccountName")}</span><span className="font-medium">{info.accountName}</span></div>
+        <div className="flex justify-between px-4 py-3"><span className="text-neutral-500">{t("checkout.payTransferNote")}</span><span className="font-medium">{info.content}</span></div>
+        <div className="flex justify-between px-4 py-3"><span className="text-neutral-500">{t("checkout.payAmount")}</span><span className="font-medium">{formatPrice(info.amount)}</span></div>
       </div>
       <p className="text-sm text-neutral-500 mt-5">
-        Chuyển khoản đúng số tiền và đúng nội dung trên. Trang này tự kiểm tra
-        mỗi 5 giây — khi shop nhận được tiền, trang sẽ tự chuyển sang kết quả.
+        {t("checkout.payNote")}
       </p>
       <Link href="/checkout" className="inline-block mt-6 text-sm underline">
-        Hủy và quay lại
+        {t("checkout.payCancel")}
       </Link>
     </div>
   );

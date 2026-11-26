@@ -3,6 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
+import { useLanguage } from "@/context/LanguageContext";
 
 const inputCls =
   "w-full bg-transparent border-b border-neutral-300 focus:border-black outline-none py-3 placeholder:text-neutral-500";
@@ -42,6 +43,7 @@ function EyeIcon({ open }: { open: boolean }) {
 
 export default function AccountPage() {
   const { user, login, register, logout } = useAuth();
+  const { t } = useLanguage();
   /* Đăng nhập bằng 1 tài khoản chung: admin/nhân viên đăng nhập xong vẫn ở lại trang web (My Account), muốn vào quản trị thì bấm icon tài khoản trên header hoặc gõ /admin. */
   const { count, setOpen } = useCart();
   const [tab, setTab] = useState<"login" | "register">("login");
@@ -68,19 +70,19 @@ export default function AccountPage() {
         <h1 className="text-4xl font-light">My Account</h1>
         <div className="mt-10 border p-8">
           <p className="text-lg">
-            Xin chào, <span className="font-medium">{user.name}</span>
+            {t("account.hello")} <span className="font-medium">{user.name}</span>
           </p>
           <p className="text-neutral-500 mt-2">{user.email}</p>
           <div className="grid sm:grid-cols-3 gap-4 mt-8 text-center text-sm">
-            <Link href="/shop" className="border py-5 hover:bg-neutral-50">Đơn hàng của tôi</Link>
-            <Link href="/checkout" className="border py-5 hover:bg-neutral-50">Thanh toán</Link>
-            <Link href="/contact" className="border py-5 hover:bg-neutral-50">Hỗ trợ / Liên hệ</Link>
+            <Link href="/shop" className="border py-5 hover:bg-neutral-50">{t("account.myOrders")}</Link>
+            <Link href="/checkout" className="border py-5 hover:bg-neutral-50">{t("account.checkoutLink")}</Link>
+            <Link href="/contact" className="border py-5 hover:bg-neutral-50">{t("account.supportLink")}</Link>
           </div>
           <button
             onClick={logout}
             className="mt-8 bg-[#171a21] text-white px-8 py-3.5 text-sm tracking-[0.2em]"
           >
-            ĐĂNG XUẤT
+            {t("account.logout")}
           </button>
         </div>
       </div>
@@ -106,7 +108,7 @@ export default function AccountPage() {
       <div className="container-x py-10">
         <div className="flex items-start justify-between">
           <h1 className="text-4xl font-light">My Account</h1>
-          <Link href="/" aria-label="Đóng" className="text-3xl leading-none text-neutral-700 hover:text-black">
+          <Link href="/" aria-label={t("common.close")} className="text-3xl leading-none text-neutral-700 hover:text-black">
             ×
           </Link>
         </div>
@@ -121,7 +123,7 @@ export default function AccountPage() {
                 : "text-2xl text-neutral-400 pb-1 hover:text-black"
             }
           >
-            Đăng nhập
+            {t("account.loginTab")}
           </button>
           <button
             onClick={() => { setTab("register"); setError(""); setNotice(""); }}
@@ -131,7 +133,7 @@ export default function AccountPage() {
                 : "text-2xl text-neutral-400 pb-1 hover:text-black"
             }
           >
-            Đăng ký
+            {t("account.registerTab")}
           </button>
         </div>
 
@@ -149,26 +151,26 @@ export default function AccountPage() {
               onSubmit={async (e) => {
                 e.preventDefault();
                 const r = await login(identifier.trim(), password, remember);
-                if (!r.ok) setError(r.error || "Đăng nhập thất bại");
+                if (!r.ok) setError(r.error || t("account.loginFailed"));
               }}
             >
               <div>
                 <label htmlFor="login-id" className={labelCls}>
-                  Tên tài khoản hoặc địa chỉ email <span className="text-red-500">*</span>
+                  {t("account.loginIdLabel")} <span className="text-red-500">*</span>
                 </label>
                 <input id="login-id" required value={identifier} onChange={(e) => setIdentifier(e.target.value)} className={inputCls} />
               </div>
               <div>
                 <label htmlFor="login-pass" className={labelCls}>
-                  Mật khẩu <span className="text-red-500">*</span>
+                  {t("account.passwordLabel")} <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <input id="login-pass" type={showLoginPass ? "text" : "password"} required value={password} onChange={(e) => setPassword(e.target.value)} className={`${inputCls} pr-10`} />
                   <button
                     type="button"
                     onClick={() => setShowLoginPass((v) => !v)}
-                    aria-label={showLoginPass ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-                    title={showLoginPass ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                    aria-label={showLoginPass ? t("account.hidePassword") : t("account.showPassword")}
+                    title={showLoginPass ? t("account.hidePassword") : t("account.showPassword")}
                     className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-neutral-500 hover:text-black"
                   >
                     <EyeIcon open={showLoginPass} />
@@ -182,14 +184,14 @@ export default function AccountPage() {
                   onChange={(e) => setRemember(e.target.checked)}
                   className="w-6 h-6 accent-neutral-300"
                 />
-                Ghi nhớ mật khẩu
+                {t("account.rememberMe")}
               </label>
               <button type="submit" className="w-full bg-[#171a21] text-white py-6 text-sm tracking-[0.2em] hover:bg-black transition">
-                ĐĂNG NHẬP
+                {t("account.loginButton")}
               </button>
               <p className="text-center pt-2">
                 <Link href="/forgot-password" className="text-sm tracking-widest underline underline-offset-8">
-                  QUÊN MẬT KHẨU?
+                  {t("account.forgotPassword")}
                 </Link>
               </p>
             </form>
@@ -199,37 +201,37 @@ export default function AccountPage() {
               onSubmit={async (e) => {
                 e.preventDefault();
                 if (regPassword.length < 6) {
-                  setError("Mật khẩu cần tối thiểu 6 ký tự.");
+                  setError(t("account.passwordTooShort"));
                   return;
                 }
                 const r = await register(name.trim(), email.trim(), regPassword);
-                if (!r.ok) setError(r.error || "Đăng ký thất bại");
-                else setNotice("Tạo tài khoản thành công. Chào mừng bạn đến Fashion Store!");
+                if (!r.ok) setError(r.error || t("account.registerFailed"));
+                else setNotice(t("account.registerSuccess"));
               }}
             >
               <div>
                 <label htmlFor="reg-name" className={labelCls}>
-                  Tên tài khoản <span className="text-red-500">*</span>
+                  {t("account.usernameLabel")} <span className="text-red-500">*</span>
                 </label>
                 <input id="reg-name" required value={name} onChange={(e) => setName(e.target.value)} className={inputCls} />
               </div>
               <div>
                 <label htmlFor="reg-email" className={labelCls}>
-                  Địa chỉ email <span className="text-red-500">*</span>
+                  {t("account.emailLabel")} <span className="text-red-500">*</span>
                 </label>
                 <input id="reg-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} />
               </div>
               <div>
                 <label htmlFor="reg-pass" className={labelCls}>
-                  Mật khẩu <span className="text-red-500">*</span>
+                  {t("account.passwordLabel")} <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <input id="reg-pass" type={showRegPass ? "text" : "password"} required value={regPassword} onChange={(e) => setRegPassword(e.target.value)} className={`${inputCls} pr-10`} />
                   <button
                     type="button"
                     onClick={() => setShowRegPass((v) => !v)}
-                    aria-label={showRegPass ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-                    title={showRegPass ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                    aria-label={showRegPass ? t("account.hidePassword") : t("account.showPassword")}
+                    title={showRegPass ? t("account.hidePassword") : t("account.showPassword")}
                     className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-neutral-500 hover:text-black"
                   >
                     <EyeIcon open={showRegPass} />
@@ -237,11 +239,10 @@ export default function AccountPage() {
                 </div>
               </div>
               <p className="text-sm text-neutral-500 leading-relaxed">
-                Dữ liệu cá nhân của bạn sẽ được dùng để hỗ trợ trải nghiệm mua sắm,
-                quản lý tài khoản và cho các mục đích trong chính sách bảo mật của Fashion Store.
+                {t("account.privacyText")}
               </p>
               <button type="submit" className="w-full bg-[#171a21] text-white py-6 text-sm tracking-[0.2em] hover:bg-black transition">
-                ĐĂNG KÝ
+                {t("account.registerButton")}
               </button>
             </form>
           )}
