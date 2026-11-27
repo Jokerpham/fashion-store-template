@@ -155,7 +155,7 @@ CREATE TABLE IF NOT EXISTS "newsletter_subscribers" (
     "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Thanh toán online (PayOS / SePay / PayPal / Stripe, xem src/lib/payments).
+-- Thanh toán online (PayOS / SePay, xem src/lib/payments).
 -- Một đơn chỉ có một bản ghi payments (order_code duy nhất).
 CREATE TABLE IF NOT EXISTS "payments" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,

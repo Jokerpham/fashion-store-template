@@ -68,16 +68,12 @@ export const shop: { vi: Dictionary; en: Dictionary } = {
       codSection: "Thanh toán khi nhận hàng",
       bankSection: "Chuyển khoản",
       onlineSection: "Thanh toán online — VietQR / ATM / ví (VND)",
-      intlSection: "Thanh toán quốc tế",
       codHint: "Trả tiền mặt khi nhận hàng",
       bankHint: "Shop xác nhận sau khi nhận được tiền",
       momoHint: "Chuyển ví, shop xác nhận thủ công",
       zalopayHint: "Chuyển ví ZaloPay, shop xác nhận thủ công",
       payosHint: "Quét VietQR, thẻ ATM nội địa, ví điện tử",
       sepayHint: "Quét mã VietQR chuyển khoản vào tài khoản shop",
-      paypalHint: "Trả bằng tài khoản PayPal hoặc thẻ quốc tế, tính bằng USD",
-      paypalHintUsd: "Trả bằng tài khoản PayPal hoặc thẻ quốc tế — khoảng {usd}",
-      stripeHint: "Thẻ Visa / Mastercard / Amex, tính bằng VND",
       simNote:
         "Cổng này chưa có key thật — bấm đặt hàng sẽ sang trang thanh toán thử nghiệm (giả lập, không trừ tiền thật).",
       orderFailed: "Đặt hàng chưa lưu được, bạn kiểm tra lại rồi thử lại nhé.",
@@ -91,7 +87,9 @@ export const shop: { vi: Dictionary; en: Dictionary } = {
       successTitle: "Đặt hàng thành công 🎉",
       successText:
         "Cảm ơn bạn đã mua sắm tại Fashion Store. Đơn hàng sẽ được xác nhận qua email / điện thoại.",
-      paypalUsdNote: "PayPal tính bằng USD: khoảng {usd} (tỉ giá {rate}₫/USD).",
+      donePendingNote:
+        "Trạng thái sẽ chuyển thành “Đã thanh toán” khi shop xác nhận đã nhận được tiền mặt.",
+      doneViewOrders: "Xem đơn hàng của tôi",
       backToCheckout: "QUAY LẠI THANH TOÁN",
       payQrError: "Không tạo được mã QR",
       payServerError: "Không kết nối được máy chủ",
@@ -137,7 +135,7 @@ export const shop: { vi: Dictionary; en: Dictionary } = {
       testPaySuccess: "GIẢ LẬP: THANH TOÁN THÀNH CÔNG",
       testPayFailed: "GIẢ LẬP: THANH TOÁN THẤT BẠI",
       testPayNote:
-        "Khi đã gắn key sandbox thật, khách sẽ sang thẳng trang của cổng (PayOS / PayPal / Stripe) hoặc trang quét QR (SePay) thay vì trang này.",
+        "Khi đã gắn key sandbox thật, khách sẽ sang thẳng trang của cổng (PayOS) hoặc trang quét QR (SePay) thay vì trang này.",
       backToCheckoutLink: "Quay lại thanh toán",
     },
     account: {
@@ -171,6 +169,16 @@ export const shop: { vi: Dictionary; en: Dictionary } = {
       backToLogin: "Quay lại Đăng nhập",
       forgotIntro: "Nhập địa chỉ email bạn đã đăng ký, chúng tôi sẽ gửi link đặt lại mật khẩu.",
       forgotSubmit: "GỬI LINK ĐẶT LẠI MẬT KHẨU",
+    },
+    orders: {
+      title: "Đơn hàng của tôi",
+      loading: "Đang tải đơn hàng...",
+      empty: "Bạn chưa có đơn hàng nào.",
+      loadError: "Không tải được đơn hàng, bạn thử lại nhé.",
+      orderCode: "Mã đơn",
+      date: "Ngày đặt",
+      itemsCount: "{count} sản phẩm",
+      paymentMethod: "Phương thức thanh toán",
     },
     contact: {
       lookupError: "Chưa tra cứu được, bạn thử lại nhé.",
@@ -323,16 +331,12 @@ export const shop: { vi: Dictionary; en: Dictionary } = {
       codSection: "Cash on delivery",
       bankSection: "Bank transfer",
       onlineSection: "Online payment — VietQR / ATM / e-wallet (VND)",
-      intlSection: "International payment",
       codHint: "Pay in cash when your order arrives",
       bankHint: "The shop confirms once the money is received",
       momoHint: "Transfer by wallet; the shop confirms manually",
       zalopayHint: "Transfer by ZaloPay wallet; the shop confirms manually",
       payosHint: "Scan VietQR, use a domestic ATM card or an e-wallet",
       sepayHint: "Scan the VietQR code to transfer to the shop's account",
-      paypalHint: "Pay with a PayPal account or an international card, in USD",
-      paypalHintUsd: "Pay with a PayPal account or an international card — about {usd}",
-      stripeHint: "Visa / Mastercard / Amex cards, charged in VND",
       simNote:
         "This gateway has no live key yet — placing the order will take you to the test payment page (simulated, no real charge).",
       orderFailed: "Your order could not be saved. Please check and try again.",
@@ -346,7 +350,9 @@ export const shop: { vi: Dictionary; en: Dictionary } = {
       successTitle: "Order placed 🎉",
       successText:
         "Thank you for shopping at Fashion Store. Your order will be confirmed by email / phone.",
-      paypalUsdNote: "PayPal charges in USD: about {usd} (rate {rate}₫/USD).",
+      donePendingNote:
+        "The status will change to “Paid” once the shop confirms it has received your cash payment.",
+      doneViewOrders: "View my orders",
       backToCheckout: "BACK TO CHECKOUT",
       payQrError: "Could not create the QR code",
       payServerError: "Could not reach the server",
@@ -392,7 +398,7 @@ export const shop: { vi: Dictionary; en: Dictionary } = {
       testPaySuccess: "SIMULATE: PAYMENT SUCCESSFUL",
       testPayFailed: "SIMULATE: PAYMENT FAILED",
       testPayNote:
-        "Once a real sandbox key is connected, customers will go straight to the gateway's page (PayOS / PayPal / Stripe) or the QR scan page (SePay) instead of this one.",
+        "Once a real sandbox key is connected, customers will go straight to the gateway's page (PayOS) or the QR scan page (SePay) instead of this one.",
       backToCheckoutLink: "Back to checkout",
     },
     account: {
@@ -426,6 +432,16 @@ export const shop: { vi: Dictionary; en: Dictionary } = {
       backToLogin: "Back to log in",
       forgotIntro: "Enter the email address you registered with and we will send you a password reset link.",
       forgotSubmit: "SEND PASSWORD RESET LINK",
+    },
+    orders: {
+      title: "My orders",
+      loading: "Loading your orders...",
+      empty: "You don't have any orders yet.",
+      loadError: "Couldn't load your orders. Please try again.",
+      orderCode: "Order code",
+      date: "Order date",
+      itemsCount: "{count} items",
+      paymentMethod: "Payment method",
     },
     contact: {
       lookupError: "Could not look up your messages, please try again.",

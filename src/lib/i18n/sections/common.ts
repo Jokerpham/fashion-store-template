@@ -85,8 +85,6 @@ export const common: { vi: Dictionary; en: Dictionary } = {
       zalopay: "Ví ZaloPay",
       payos: "PayOS — VietQR / ATM / ví",
       sepay: "SePay — VietQR chuyển khoản",
-      paypal: "PayPal (USD)",
-      stripe: "Stripe — Thẻ quốc tế",
     },
   },
   en: {
@@ -170,8 +168,6 @@ export const common: { vi: Dictionary; en: Dictionary } = {
       zalopay: "ZaloPay wallet",
       payos: "PayOS — VietQR / ATM / e-wallet",
       sepay: "SePay — VietQR bank transfer",
-      paypal: "PayPal (USD)",
-      stripe: "Stripe — International cards",
     },
   },
 };

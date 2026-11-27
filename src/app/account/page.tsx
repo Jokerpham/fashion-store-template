@@ -74,7 +74,7 @@ export default function AccountPage() {
           </p>
           <p className="text-neutral-500 mt-2">{user.email}</p>
           <div className="grid sm:grid-cols-3 gap-4 mt-8 text-center text-sm">
-            <Link href="/shop" className="border py-5 hover:bg-neutral-50">{t("account.myOrders")}</Link>
+            <Link href="/account/orders" className="border py-5 hover:bg-neutral-50">{t("account.myOrders")}</Link>
             <Link href="/checkout" className="border py-5 hover:bg-neutral-50">{t("account.checkoutLink")}</Link>
             <Link href="/contact" className="border py-5 hover:bg-neutral-50">{t("account.supportLink")}</Link>
           </div>

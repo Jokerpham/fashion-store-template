@@ -6,33 +6,30 @@ import { useCart } from "@/context/CartContext";
 import { formatPrice } from "@/lib/format";
 import { pushOrder, newId } from "@/lib/store";
 import { useLanguage } from "@/context/LanguageContext";
-import { productName, translate, localeForLang } from "@/lib/i18n";
+import { productName, statusLabel, translate } from "@/lib/i18n";
 
-type Method = "cod" | "bank" | "momo" | "zalopay" | "payos" | "sepay" | "paypal" | "stripe";
-const ONLINE: Method[] = ["payos", "sepay", "paypal", "stripe"];
+type Method = "cod" | "bank" | "momo" | "zalopay" | "payos" | "sepay";
+const ONLINE: Method[] = ["payos", "sepay"];
 
 export default function CheckoutPage(){
-  const {items,total,clear}=useCart(); const [done,setDone]=useState(false);
+  const {items,total,clear}=useCart(); const [doneOrder,setDoneOrder]=useState<{ code: string; method: Method } | null>(null);
   const router = useRouter();
   const { lang, t } = useLanguage();
   const [method, setMethod] = useState<Method>("cod");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
-  const [cfg, setCfg] = useState<{simulation: boolean; methods: Record<string, boolean>; paypalRate: number} | null>(null);
+  const [cfg, setCfg] = useState<{simulation: boolean; methods: Record<string, boolean>} | null>(null);
 
   useEffect(() => {
-    fetch("/api/payments/config").then((r) => r.json()).then((d) => setCfg(d as { simulation: boolean; methods: Record<string, boolean>; paypalRate: number })).catch(() => null);
+    fetch("/api/payments/config").then((r) => r.json()).then((d) => setCfg(d as { simulation: boolean; methods: Record<string, boolean> })).catch(() => null);
   }, []);
 
-  const usd = cfg ? Math.round((total / cfg.paypalRate) * 100) / 100 : null;
   // Tạm tính + phí ship (cùng công thức với /api/orders: phí ship =
   // max(0, total - subtotal)). Giỏ hàng hiện chưa tính phí ship riêng
   // nên total = subtotal, phí ship luôn 0 → hiển thị "Miễn phí vận
   // chuyển"; nếu sau này có phí, dòng này hiện đúng số tiền.
   const subtotal = items.reduce((s, i) => s + i.product.price * i.qty, 0);
   const shippingFee = Math.max(0, total - subtotal);
-  const usdStr = usd !== null ? `$${usd.toFixed(2)}` : "";
-  const rateStr = cfg ? cfg.paypalRate.toLocaleString(localeForLang(lang)) : "";
   const isOnline = ONLINE.includes(method);
   const methodConfigured = cfg ? cfg.methods[method] !== false : true;
   const showSimNote = isOnline && cfg && (cfg.simulation || !methodConfigured);
@@ -96,9 +93,29 @@ export default function CheckoutPage(){
     );
   };
 
-  if(done) return <div className="container-x pt-16 pb-24 text-center"><h1 className="text-3xl font-light">{t("checkout.successTitle")}</h1><p className="text-neutral-500 mt-4">{t("checkout.successText")}</p></div>;
+  /* Sau khi đặt đơn không qua cổng online (COD / chuyển khoản / ví):
+     hiện mã đơn, phương thức thanh toán kèm huy hiệu trạng thái NGAY BÊN
+     CẠNH phương thức — lúc này chỉ là "Chờ thanh toán" (hổ phách), chưa
+     phải "Đã thanh toán": huy hiệu xanh chỉ hiện khi shop xác nhận đã
+     nhận được tiền mặt (đổi trạng thái trong trang quản trị đơn hàng). */
+  if(doneOrder) return (
+    <div className="container-x pt-16 pb-24 text-center">
+      <h1 className="text-3xl font-light">{t("checkout.successTitle")}</h1>
+      <p className="text-neutral-500 mt-4">{t("checkout.successText")}</p>
+      <div className="mx-auto mt-8 max-w-md border p-6 text-left">
+        <p className="text-sm"><span className="text-neutral-500">{t("orders.orderCode")}: </span><span className="font-medium">{doneOrder.code}</span></p>
+        <p className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+          <span className="text-neutral-500">{t("orders.paymentMethod")}: </span>
+          <span className="font-medium">{t("payment." + doneOrder.method)}</span>
+          <span className="rounded-full border border-amber-200 bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">{statusLabel("Chờ thanh toán", lang)}</span>
+        </p>
+        <p className="mt-4 text-sm leading-relaxed text-neutral-500">{t("checkout.donePendingNote")}</p>
+      </div>
+      <Link href="/account/orders" className="mt-8 inline-block bg-[#23232c] px-8 py-3.5 text-sm tracking-[0.2em] text-white font-heading">{t("checkout.doneViewOrders")}</Link>
+    </div>
+  );
   return (<div className="container-x pt-12 pb-20 grid md:grid-cols-2 gap-12">
-    <form onSubmit={async e=>{e.preventDefault(); if (busy) return; setBusy(true); setErr(""); const fd=new FormData(e.currentTarget); const orderId=newId("Fashion Store"); try { await pushOrder({ id:orderId, date:new Date().toISOString(), customer:{ name:String(fd.get("name")||""), phone:String(fd.get("phone")||""), email:String(fd.get("email")||"")||undefined, address:String(fd.get("address")||"") }, items:items.map(i=>({name:i.product.name,size:i.size,qty:i.qty,price:i.product.price})), total, payment:translate("vi", `payment.${method}`), status:isOnline?"Chờ thanh toán":"Chờ xác nhận" }); clear(); if (!isOnline) { setDone(true); return; } const res = await fetch(`/api/payments/${method}/create`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ orderCode: orderId }) }); const data = (await res.json()) as Record<string, any>; if (data.simulation) { router.push(`/checkout/test-pay?order=${encodeURIComponent(orderId)}&gateway=${method}`); return; } if (!res.ok) throw new Error(data.error || t("checkout.sessionError")); if (data.redirectUrl) { window.location.href = data.redirectUrl; return; } if (data.qrUrl) { router.push(`/checkout/pay?order=${encodeURIComponent(orderId)}`); return; } throw new Error(t("checkout.noPaymentLink")); } catch (e2: any) { setErr(e2?.message || t("checkout.orderFailed")); setBusy(false); }}} className="space-y-4">
+    <form onSubmit={async e=>{e.preventDefault(); if (busy) return; setBusy(true); setErr(""); const fd=new FormData(e.currentTarget); const orderId=newId("Fashion Store"); try { await pushOrder({ id:orderId, date:new Date().toISOString(), customer:{ name:String(fd.get("name")||""), phone:String(fd.get("phone")||""), email:String(fd.get("email")||"")||undefined, address:String(fd.get("address")||"") }, items:items.map(i=>({name:i.product.name,size:i.size,qty:i.qty,price:i.product.price})), total, payment:translate("vi", `payment.${method}`), status:isOnline?"Chờ thanh toán":"Chờ xác nhận" }); clear(); if (!isOnline) { setDoneOrder({ code: orderId, method }); return; } const res = await fetch(`/api/payments/${method}/create`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ orderCode: orderId }) }); const data = (await res.json()) as Record<string, any>; if (data.simulation) { router.push(`/checkout/test-pay?order=${encodeURIComponent(orderId)}&gateway=${method}`); return; } if (!res.ok) throw new Error(data.error || t("checkout.sessionError")); if (data.redirectUrl) { window.location.href = data.redirectUrl; return; } if (data.qrUrl) { router.push(`/checkout/pay?order=${encodeURIComponent(orderId)}`); return; } throw new Error(t("checkout.noPaymentLink")); } catch (e2: any) { setErr(e2?.message || t("checkout.orderFailed")); setBusy(false); }}} className="space-y-4">
       <h1 className="text-2xl font-light tracking-widest">{t("checkout.title")}</h1>
       <input name="name" required placeholder={t("checkout.namePlaceholder")} className="border w-full px-4 py-3" /><input name="phone" required placeholder={t("checkout.phonePlaceholder")} className="border w-full px-4 py-3" /><input name="email" type="email" placeholder="Email" className="border w-full px-4 py-3" /><input name="address" required placeholder={t("checkout.addressPlaceholder")} className="border w-full px-4 py-3" />
       <div className="space-y-2">
@@ -112,9 +129,6 @@ export default function CheckoutPage(){
         <p className="text-xs text-neutral-500 pt-2">{t("checkout.onlineSection")}</p>
         {radio("payos", t("payment.payos"), t("checkout.payosHint"))}
         {radio("sepay", t("payment.sepay"), t("checkout.sepayHint"))}
-        <p className="text-xs text-neutral-500 pt-2">{t("checkout.intlSection")}</p>
-        {radio("paypal", t("payment.paypal"), usd !== null ? t("checkout.paypalHintUsd", { usd: usdStr }) : t("checkout.paypalHint"))}
-        {radio("stripe", t("payment.stripe"), t("checkout.stripeHint"))}
         {showSimNote && <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 px-3 py-2">{t("checkout.simNote")}</p>}
       </div>
       {err && <p className="bg-red-50 text-red-700 text-sm px-4 py-3">{err}</p>}
@@ -153,7 +167,6 @@ export default function CheckoutPage(){
           <div className="border-t mt-4 pt-4 flex justify-between font-semibold"><span>{t("cart.total")}</span><span>{formatPrice(total)}</span></div>
         </>
       )}
-      {isOnline && usd !== null && method === "paypal" && <p className="text-sm text-neutral-500 mt-2">{t("checkout.paypalUsdNote", { usd: usdStr, rate: rateStr })}</p>}
       {selQr && selQrColor && (
         <div className="rounded-xl border px-5 py-5 text-center mt-8" style={{ backgroundColor: selQrColor.bg, borderColor: selQrColor.border }}>
           <p className="font-semibold" style={{ color: selQrColor.title }}>{qrLabel[method]}</p>

@@ -144,8 +144,6 @@ const PAYMENT_EN: Record<string, string> = {
   momo: "MoMo / ZaloPay wallet",
   payos: "PayOS — VietQR / ATM / e-wallet",
   sepay: "SePay — VietQR bank transfer",
-  paypal: "PayPal (USD)",
-  stripe: "Stripe — International cards",
 };
 
 function paymentEn(label: string): string {

@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Không tìm thấy đơn" }, { status: 404 });
   }
   const gateway = order.paymentMethod as GatewayId;
-  if (!["payos", "sepay", "paypal", "stripe"].includes(gateway)) {
+  if (!["payos", "sepay"].includes(gateway)) {
     return NextResponse.json(
       { error: "Đơn này không dùng thanh toán online" },
       { status: 400 },

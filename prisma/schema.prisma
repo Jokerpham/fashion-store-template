@@ -179,8 +179,8 @@ model OrderItem {
    orderCode duy nhất: mỗi đơn chỉ có một bản ghi thanh toán đang theo dõi.
    status: pending (đã tạo link/QR, chờ khách trả), paid (cổng báo đã trả),
    failed (hủy / thất bại), simulated (trả thử ở chế độ giả lập, không có
-   tiền thật). gatewayRef lưu mã phía cổng (PayOS orderCode số, PayPal order
-   id, Stripe session id, nội dung chuyển khoản SePay) để đối chiếu webhook.
+   tiền thật). gatewayRef lưu mã phía cổng (PayOS orderCode số, nội dung
+   chuyển khoản SePay) để đối chiếu webhook.
    rawPayload lưu JSON gốc trả về từ cổng (link checkout, QR...) để gọi lại
    create cho cùng đơn không tạo phiên mới. */
 model Payment {

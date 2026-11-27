@@ -50,8 +50,6 @@ export function toAppStatus(status: string): Order["status"] {
 export function toDbPayment(payment: string): string {
   if (/payos/i.test(payment)) return "payos";
   if (/sepay/i.test(payment)) return "sepay";
-  if (/paypal/i.test(payment)) return "paypal";
-  if (/stripe/i.test(payment)) return "stripe";
   if (/momo/i.test(payment)) return "momo";
   if (/chuyển khoản|bank/i.test(payment)) return "bank";
   return "cod";
@@ -59,8 +57,6 @@ export function toDbPayment(payment: string): string {
 export function toAppPayment(method: string): string {
   if (method === "payos") return "PayOS — VietQR / ATM / ví";
   if (method === "sepay") return "SePay — VietQR chuyển khoản";
-  if (method === "paypal") return "PayPal (USD)";
-  if (method === "stripe") return "Stripe — Thẻ quốc tế";
   if (method === "momo") return "Ví MoMo / ZaloPay";
   if (method === "bank") return "Chuyển khoản ngân hàng";
   return "COD - Thanh toán khi nhận hàng";

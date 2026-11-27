@@ -153,7 +153,7 @@ in Settings (change-password, which requires the current password).
 
 ## Payments
 
-Checkout accepts COD and bank transfer (as before), plus four online
+Checkout accepts COD and bank transfer (as before), plus two online
 gateways. All of them run in **sandbox / test mode** until you paste
 real keys — with no keys configured, the shop runs in **simulation mode**:
 the customer is sent to a test page ("Thanh toán thử nghiệm — giả lập")
@@ -164,8 +164,6 @@ moving. Set `PAYMENTS_SIMULATION=false` and paste real keys to go live.
 |---|---|---|
 | **PayOS** | VND | Creates a payment link (VietQR / ATM / e-wallet). The customer is redirected to the PayOS checkout; PayOS calls back the webhook, which marks the order paid only after verifying the HMAC-SHA256 signature and the amount. |
 | **SePay** | VND | No "create payment" API. The shop shows a VietQR code (SePay QR image) with the shop's bank account and the order code as the transfer content. SePay watches the bank account and calls back the webhook when money arrives; the order is marked paid only if the amount covers the order total. The QR page polls the order status every 5 seconds. |
-| **PayPal** | USD | Creates an Orders v2 order (intent CAPTURE). VND is not a PayPal currency, so the total is converted to USD at `PAYPAL_VND_PER_USD` (default 26,000) and the USD amount is shown to the buyer. After the buyer approves, the server captures the payment itself — the redirect alone is never trusted. |
-| **Stripe** | VND | Creates a Checkout Session (card payment). VND is a zero-decimal currency on Stripe, so the amount is charged as the plain VND number. The webhook (verified with `STRIPE_WEBHOOK_SECRET`) marks the order paid on `checkout.session.completed`. Test card: `4242 4242 4242 4242`. |
 
 ### Setup (sandbox)
 
@@ -176,16 +174,6 @@ moving. Set `PAYMENTS_SIMULATION=false` and paste real keys to go live.
    `SEPAY_BANK_CODE` (e.g. `VCB` for Vietcombank), `SEPAY_ACCOUNT_NUMBER`
    and `SEPAY_ACCOUNT_NAME`. Register the webhook URL below in the SePay
    dashboard so SePay can report incoming transfers.
-3. **PayPal** — create a sandbox app at
-   https://developer.paypal.com/dashboard/applications/sandbox and copy
-   the sandbox Client ID and Secret. Keep `PAYPAL_ENV=sandbox` for
-   testing; switch to `live` (with live credentials) only when you are
-   ready to take real money.
-4. **Stripe** — get test keys at
-   https://dashboard.stripe.com/test/apikeys and create a webhook
-   endpoint in Dashboard → Developers → Webhooks pointing at the Stripe
-   webhook URL below; copy its signing secret into
-   `STRIPE_WEBHOOK_SECRET`.
 
 ### Where to paste the keys
 
@@ -231,8 +219,6 @@ Replace `<domain>` with your public domain:
 
 - PayOS: `https://<domain>/api/payments/payos/webhook`
 - SePay: `https://<domain>/api/payments/sepay/webhook`
-- PayPal: `https://<domain>/api/payments/paypal/webhook`
-- Stripe: `https://<domain>/api/payments/stripe/webhook`
 
 ### How orders flow
 
@@ -247,12 +233,20 @@ Replace `<domain>` with your public domain:
   status: `pending` / `paid` / `failed` / `simulated`).
 - In the admin orders page, the two new statuses appear in the status
   filter and the status dropdown, exactly like the old ones.
+- Customers see their own orders at **/account/orders** (linked from
+  "Đơn hàng của tôi" on the account page; login required). The page lists
+  only the logged-in customer's orders — the server filters by the email
+  in the shop session (`GET /api/orders?mine=1`), never by an email the
+  browser sends. Each order shows the payment method with a status badge
+  right beside it: green **"Đã thanh toán"** once the shop confirms the
+  cash was received, amber **"Chờ thanh toán"** while it is still pending.
+  After placing a COD / bank / wallet order, the checkout success screen
+  also shows the order code, the payment method and the amber
+  "Chờ thanh toán" badge, with a link to the orders page.
 
 ### Going live
 
-1. Switch PayPal to `PAYPAL_ENV=live` with live credentials, and use
-   Stripe live keys (dashboard.stripe.com/apikeys, not `/test/`).
-2. For PayOS and SePay, switch the merchant account from sandbox to
+1. For PayOS and SePay, switch the merchant account from sandbox to
    production in their dashboards and replace the keys.
 3. Set `PAYMENTS_SIMULATION=false` (or remove the variable).
 4. Re-register the webhook URLs above with the live credentials.

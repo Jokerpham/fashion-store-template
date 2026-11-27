@@ -1,12 +1,28 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getSessionUser } from "@/lib/auth";
 import { getAdminEmail, scheduleEmail, sendNewOrderEmail } from "@/lib/email";
 import { toAppOrder, toDbPayment, toDbStatus } from "@/lib/db-map";
 
 export const dynamic = "force-dynamic";
 export const runtime = "edge"; // Cloudflare Pages yeu cau route dong chay Edge Runtime.
 
-export async function GET() {
+export async function GET(req: Request) {
+  /* ?mine=1: chỉ trả đơn của chính khách đang đăng nhập — email lấy từ
+     phiên shop phía server, không tin email khách gửi lên, nên khách
+     không xem được đơn của người khác. Trả 401 khi chưa đăng nhập. */
+  if (new URL(req.url).searchParams.get("mine") === "1") {
+    const user = await getSessionUser("shop");
+    if (!user) {
+      return NextResponse.json({ error: "Chưa đăng nhập." }, { status: 401 });
+    }
+    const rows = await prisma.order.findMany({
+      where: { email: user.email },
+      include: { items: true },
+      orderBy: { createdAt: "desc" },
+    });
+    return NextResponse.json(rows.map(toAppOrder));
+  }
   const rows = await prisma.order.findMany({
     include: { items: true },
     orderBy: { createdAt: "desc" },
