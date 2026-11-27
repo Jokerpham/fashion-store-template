@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, Fragment } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { formatPrice } from "@/lib/format";
@@ -33,10 +33,10 @@ export default function CheckoutPage(){
   // Mã QR mẫu cho từng phương thức thanh toán (xem README, mục
   // "Payments" — chủ shop thay các file này bằng mã QR thật của mình).
   // Mã QR KHÔNG nằm trong khung phương thức: khi khách chọn một phương
-  // thức có QR, bảng "quét để thanh toán" hiện ngay dưới khung của
-  // phương thức đó (bên ngoài khung, cạnh phương thức). Bảng dùng đúng
-  // màu thương hiệu của từng bên: xanh Vietcombank/VietQR, hồng MoMo,
-  // xanh dương ZaloPay, xanh lá PayOS, xanh ngọc đậm SePay.
+  // thức có QR, bảng "quét để thanh toán" hiện ở CỘT PHẢI, phía trên
+  // tóm tắt đơn hàng (kiểu web sofa). Bảng dùng đúng màu thương hiệu
+  // của từng bên: xanh Vietcombank/VietQR, hồng MoMo, xanh dương
+  // ZaloPay, xanh lá PayOS, xanh ngọc đậm SePay.
   // PayOS/SePay tạo mã QR thật theo từng đơn sau khi đặt hàng; mã ở đây
   // chỉ để minh họa.
   const QR: Partial<Record<Method, string>> = {
@@ -71,32 +71,18 @@ export default function CheckoutPage(){
     sepay: t("checkout.sepayHint"),
   };
 
+  const selQr = QR[method];
+  const selQrColor = QR_COLOR[method];
+
   const radio = (m: Method, label: string, hint?: string) => {
-    const img = QR[m];
-    const c = QR_COLOR[m];
     return (
-      <Fragment key={m}>
-        <label className={`flex items-start gap-3 border px-4 py-3 cursor-pointer ${method === m ? "border-black bg-neutral-50" : "border-neutral-200"}`}>
-          <input type="radio" name="payment" checked={method === m} onChange={() => setMethod(m)} className="mt-1 accent-black" />
-          <span>
-            <span className="block text-sm font-medium">{label}</span>
-            {hint && <span className="block text-xs text-neutral-500 mt-0.5">{hint}</span>}
-          </span>
-        </label>
-        {m === method && img && c && (
-          <div className="rounded-xl border px-5 py-5 text-center" style={{ backgroundColor: c.bg, borderColor: c.border }}>
-            <p className="font-semibold" style={{ color: c.title }}>{qrLabel[m]}</p>
-            <div className="relative mx-auto mt-4 h-48 w-48 rounded-lg bg-white p-3">
-              <img src={img} alt="" className="h-full w-full object-contain" />
-              <span className="absolute left-0 top-0 h-6 w-6 rounded-tl-lg border-l-4 border-t-4" style={{ borderColor: c.bracket }} />
-              <span className="absolute right-0 top-0 h-6 w-6 rounded-tr-lg border-r-4 border-t-4" style={{ borderColor: c.bracket }} />
-              <span className="absolute bottom-0 left-0 h-6 w-6 rounded-bl-lg border-b-4 border-l-4" style={{ borderColor: c.bracket }} />
-              <span className="absolute bottom-0 right-0 h-6 w-6 rounded-br-lg border-b-4 border-r-4" style={{ borderColor: c.bracket }} />
-            </div>
-            {qrHint[m] && <p className="mt-4 text-sm text-neutral-600">{qrHint[m]}</p>}
-          </div>
-        )}
-      </Fragment>
+      <label key={m} className={`flex items-start gap-3 border px-4 py-3 cursor-pointer ${method === m ? "border-black bg-neutral-50" : "border-neutral-200"}`}>
+        <input type="radio" name="payment" checked={method === m} onChange={() => setMethod(m)} className="mt-1 accent-black" />
+        <span>
+          <span className="block text-sm font-medium">{label}</span>
+          {hint && <span className="block text-xs text-neutral-500 mt-0.5">{hint}</span>}
+        </span>
+      </label>
     );
   };
 
@@ -124,7 +110,21 @@ export default function CheckoutPage(){
       {err && <p className="bg-red-50 text-red-700 text-sm px-4 py-3">{err}</p>}
       <button disabled={busy} className="bg-[#23232c] text-white w-full py-4 tracking-widest text-sm font-heading disabled:opacity-60">{busy ? t("checkout.processing") : t("checkout.placeOrder")}</button>
     </form>
-    <div><h2 className="font-semibold tracking-widest">{t("checkout.orderTitle")}</h2>
+    <div>
+      {selQr && selQrColor && (
+        <div className="rounded-xl border px-5 py-5 text-center mb-8" style={{ backgroundColor: selQrColor.bg, borderColor: selQrColor.border }}>
+          <p className="font-semibold" style={{ color: selQrColor.title }}>{qrLabel[method]}</p>
+          <div className="relative mx-auto mt-4 h-56 w-56 rounded-lg bg-white p-3">
+            <img src={selQr} alt="" className="h-full w-full object-contain" />
+            <span className="absolute left-0 top-0 h-6 w-6 rounded-tl-lg border-l-4 border-t-4" style={{ borderColor: selQrColor.bracket }} />
+            <span className="absolute right-0 top-0 h-6 w-6 rounded-tr-lg border-r-4 border-t-4" style={{ borderColor: selQrColor.bracket }} />
+            <span className="absolute bottom-0 left-0 h-6 w-6 rounded-bl-lg border-b-4 border-l-4" style={{ borderColor: selQrColor.bracket }} />
+            <span className="absolute bottom-0 right-0 h-6 w-6 rounded-br-lg border-b-4 border-r-4" style={{ borderColor: selQrColor.bracket }} />
+          </div>
+          {qrHint[method] && <p className="mt-4 text-sm text-neutral-600">{qrHint[method]}</p>}
+        </div>
+      )}
+      <h2 className="font-semibold tracking-widest">{t("checkout.orderTitle")}</h2>
       <div className="space-y-3 mt-5">{items.map((i,idx)=><div key={idx} className="flex justify-between text-sm"><span>{productName(i.product, lang)} × {i.qty} ({i.size})</span><span>{formatPrice(i.product.price*i.qty)}</span></div>)}</div>
       <div className="border-t mt-6 pt-4 flex justify-between font-semibold"><span>{t("cart.total")}</span><span>{formatPrice(total)}</span></div>
       {isOnline && usd !== null && method === "paypal" && <p className="text-sm text-neutral-500 mt-2">{t("checkout.paypalUsdNote", { usd: usdStr, rate: rateStr })}</p>}
