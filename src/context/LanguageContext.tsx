@@ -1,13 +1,11 @@
 "use client";
-/* Ngôn ngữ giao diện (v7): "en" mặc định, 134
-   ngôn ngữ (xem src/lib/i18n/languages.ts). Lựa chọn lưu ở localStorage
-   (khóa fashion-lang) nên lần sau mở lại vẫn giữ. Lần render đầu luôn
-   là "en" để tránh lệch hydration giữa server và trình duyệt; lựa chọn
-   đã lưu được nạp lại ngay sau khi mount.
-   Chỉ vi/en được bundle sẵn; ngôn ngữ khác được tải lười (dynamic
-   import, có cache) — trong lúc tải vẫn hiển thị ngôn ngữ cũ, không
-   bao giờ hiện trắng. Khi đổi ngôn ngữ, thẻ <html> được cập nhật cả
-   lang lẫn dir (rtl cho Ả Rập, Hebrew, Ba Tư, Urdu...). */
+/* Ngôn ngữ giao diện (v16): chỉ "en" (mặc định) và "vi" (xem
+   src/lib/i18n/languages.ts). Lựa chọn lưu ở localStorage (khóa
+   fashion-lang) nên lần sau mở lại vẫn giữ. Lần render đầu luôn là
+   "en" để tránh lệch hydration giữa server và trình duyệt; lựa chọn
+   đã lưu được nạp lại ngay sau khi mount. Cả 2 ngôn ngữ đều được
+   bundle sẵn nên đổi ngôn ngữ là có ngay, không phải tải thêm.
+   Khi đổi ngôn ngữ, thẻ <html> được cập nhật cả lang lẫn dir. */
 import {
   createContext,
   useCallback,

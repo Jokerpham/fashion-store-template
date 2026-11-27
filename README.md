@@ -259,68 +259,58 @@ Replace `<domain>` with your public domain:
 
 ## Languages
 
-The shop and the admin panel support **134 languages** (the Google
-Translate language list, from Arabic to Zulu), with **English as the
-default**. A language dropdown sits in the shop header, in the admin
-header, and on the admin login screen; it lists every language by its
-native name + English name and has a search box. The choice is saved
-in the browser's localStorage (`fashion-lang`) and kept on the next
-visit. Currency stays VND and prices, routes, and the checkout/payment
-flow are unchanged.
+The shop and the admin panel support **2 languages — English (the
+default) and Vietnamese**. A language dropdown sits in the shop
+header, in the admin header, and on the admin login screen; it lists
+both languages (flag + English name) and has a search box. The
+choice is saved in the browser's localStorage (`fashion-lang`) and
+kept on the next visit. Currency stays VND and prices, routes, and
+the checkout/payment flow are unchanged. (Earlier versions shipped
+134 languages; from v16 only English and Vietnamese remain — the
+other 132 dictionary files were removed.)
 
 - **How it works:** `src/lib/i18n/` holds the dictionaries.
   Vietnamese + English live in `sections/common.ts`,
-  `sections/shop.ts`, `sections/admin.ts` and are bundled with the app.
-  The other 132 languages live in `src/lib/i18n/dictionaries/<code>.ts`
-  and are **lazy-loaded** — each language is downloaded only when a
-  visitor selects it (`loader.ts`, dynamic `import()`, cached in
-  memory), so the initial bundle stays small. The registry of all 134
-  languages (ISO code, English name, native name, text direction) is
+  `sections/shop.ts`, `sections/admin.ts` and are bundled with the app
+  (`bundled.ts`). The registry of the 2 languages (ISO code, English
+  name, native name, text direction, flag) is
   `src/lib/i18n/languages.ts`. `src/context/LanguageContext.tsx`
   provides `useLanguage()` → `{ lang, setLang, t, loading }`;
   components render `t("section.key")`.
 - **Fallback:** a missing string in the active language falls back to
   English, then Vietnamese, then the key itself — the page never shows
-  a blank label. Run `node scripts/check-i18n.cjs` to verify every
-  language file contains the complete key set.
-- **RTL:** for right-to-left languages (Arabic, Hebrew, Persian, Urdu,
-  Pashto, Sindhi, Uyghur, Yiddish, Divehi, Central Kurdish) the
-  `<html>` element gets `dir="rtl"` (and `lang` is always set), so the
-  layout mirrors. Other languages use `dir="ltr"`.
-- **Flags:** every language shows its flag on the switcher button and
+  a blank label. Run `node scripts/check-i18n.cjs` to verify both
+  languages contain the complete key set.
+- **RTL:** both shipped languages are left-to-right, so no RTL
+  handling is needed; `<html>` still gets `lang` (and `dir="ltr"`)
+  set on every language switch.
+- **Flags:** each language shows its flag on the switcher button and
   on every dropdown item. Flags are self-contained SVG files in
-  `public/flags/<country>.svg` (from flagcdn), rendered by
-  `src/components/FlagIcon.tsx` as plain `<img>` — NOT emoji flags,
-  because Chrome on Windows shows flag emojis as two-letter codes
-  (e.g. "US") instead of flag images. Each entry in `LANGUAGES` has a
-  `flag` field (ISO country code, e.g. `us`, `vn`, `cn`) or `"globe"`
-  for languages with no country flag (Esperanto, Latin, Kurdish,
-  Quechua, Central Kurdish — `public/flags/globe.svg`). To change a
-  flag, edit the `flag` field and drop the matching SVG into
-  `public/flags/`.
+  `public/flags/` (from flagcdn: `gb.svg` for English, `vn.svg` for
+  Vietnamese), rendered by `src/components/FlagIcon.tsx` as plain
+  `<img>` — NOT emoji flags, because Chrome on Windows shows flag
+  emojis as two-letter codes (e.g. "US") instead of flag images.
+  Each entry in `LANGUAGES` has a `flag` field (ISO country code).
+  To change a flag, edit the `flag` field and drop the matching SVG
+  into `public/flags/`.
 - **Product names / descriptions:** the `products` table has `name_en`
-  and `description_en` columns (added in v6). English is shown for
-  every non-Vietnamese language, falling back to the Vietnamese value
-  when empty (`productName()` / `productDescription()` in
+  and `description_en` columns (added in v6). English is shown when
+  the language is English, falling back to the Vietnamese value when
+  empty (`productName()` / `productDescription()` in
   `src/lib/i18n`). The 8 sample products ship with English names and
   descriptions in `fashion-store-d1-insert.sql` and `prisma/seed.cjs`.
-  No per-language product columns — other languages fall back to
-  English by design.
-- **Emails stay bilingual (VI + EN)** — see "Emails" below. Email
-  templates are NOT translated into 134 languages.
-- **How to add a language:** add one entry to `LANGUAGES` in
+- **Emails stay bilingual (VI + EN)** — see "Emails" below.
+- **How to add a language back:** add one entry to `LANGUAGES` in
   `src/lib/i18n/languages.ts`, add a dictionary file
-  `src/lib/i18n/dictionaries/<code>.ts` with the same 688 keys (copy
-  the structure of the English dictionary), then run
-  `node scripts/check-i18n.cjs` to check coverage.
+  `src/lib/i18n/dictionaries/<code>.ts` with the same keys as the
+  English dictionary (copy the structure of the bundled English
+  dictionary in `sections/`), add its flag SVG to `public/flags/`,
+  then run `node scripts/check-i18n.cjs` to check coverage. (The v7
+  dictionaries for 132 languages were removed in v16; they are not
+  bundled with this template anymore.)
 - **How to change the default:** change `DEFAULT_LANG` in
   `src/lib/i18n/languages.ts` (and the `<html lang="en">` in
   `src/app/layout.tsx`).
-- **Translation quality:** Vietnamese and English are the reference
-  translations. Translations for smaller languages are best-effort —
-  short UI strings translated without full context; if a string reads
-  oddly in a language, it falls back to English for that key only when
-  the key is missing, so a weak translation still shows.
 - **Upgrading an existing database:** run the migration once (local
   and/or live) so the two new columns exist and the 8 sample products
   get their English text:

@@ -1,6 +1,6 @@
 "use client";
-/* Menu thả xuống chọn ngôn ngữ (v7) — dùng chung cho header shop, header
-   admin và màn hình đăng nhập admin. Liệt kê 134 ngôn ngữ (cờ + tên
+/* Menu thả xuống chọn ngôn ngữ (v16) — dùng chung cho header shop, header
+   admin và màn hình đăng nhập admin. Liệt kê 2 ngôn ngữ (cờ + tên
    tiếng Anh), có ô tìm kiếm lọc theo mã, tên tiếng Anh hoặc tên bản ngữ.
    Mỗi dòng chỉ hiện MỘT tên (tên tiếng Anh, chữ thường, không in đậm).
    `dark` để chữ sáng khi đặt trên nền tối (sidebar admin). Bấm ra ngoài

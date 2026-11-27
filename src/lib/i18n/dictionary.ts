@@ -1,9 +1,8 @@
-/* Từ điển đa ngôn ngữ (v7) — lõi tra cứu + hàm phụ trợ.
-   Ngôn ngữ mặc định là "en"; các ngôn ngữ khác
-   (134 ngôn ngữ, xem src/lib/i18n/languages.ts) được nạp lười qua
-   dynamic import (src/lib/i18n/loader.ts). Mọi chuỗi thiếu bản dịch sẽ
-   rơi về tiếng Anh, rồi tiếng Việt, cuối cùng là chính khóa — web không
-   bao giờ hiện ô trống vì thiếu key. */
+/* Từ điển đa ngôn ngữ (v16) — lõi tra cứu + hàm phụ trợ.
+   Ngôn ngữ mặc định là "en"; chỉ còn 2 ngôn ngữ (en + vi, xem
+   src/lib/i18n/languages.ts), cả 2 đều bundle sẵn. Mọi chuỗi thiếu
+   bản dịch sẽ rơi về tiếng Anh, rồi tiếng Việt, cuối cùng là chính
+   khóa — web không bao giờ hiện ô trống vì thiếu key. */
 export type Lang = string;
 
 /* Cây từ điển: khóa lồng nhau, lá luôn là chuỗi. */

@@ -6,8 +6,8 @@
    - admin:  admin
    t(lang, key): thiếu bản dịch ở ngôn ngữ đang chọn thì rơi về tiếng Anh,
    rồi tiếng Việt, cuối cùng trả về chính khóa — không bao giờ trả chuỗi
-   rỗng. vi/en được bundle sẵn; các ngôn ngữ khác nạp lười qua loader.ts
-   và truyền từ điển đã nạp vào translateWith. */
+   rỗng. vi/en được bundle sẵn; loadDictionary (loader.ts) chỉ trả về
+   từ điển bundle sẵn của ngôn ngữ đang chọn. */
 import { lookup, interpolate, type Lang, type Dictionary } from "./dictionary";
 import { vi, en } from "./bundled";
 
