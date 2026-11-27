@@ -206,13 +206,18 @@ moving. Set `PAYMENTS_SIMULATION=false` and paste real keys to go live.
 
 ### Payment QR codes
 
-Each QR-capable method on the checkout page shows a QR code beside it
-(files in `public/qr/`): `qr-bank.png` (bank transfer — a valid static
-VietQR for the sample account), `qr-momo.png` (MoMo/ZaloPay — sample
-placeholder), `qr-payos.png` / `qr-sepay.png` (sample VietQR). Replace
+When the customer picks a QR-capable method on the checkout page (bank
+transfer, MoMo, ZaloPay, PayOS or SePay), a "scan to pay" QR panel appears
+beside the order summary (the QR is NOT inside the payment-method box).
+MoMo and ZaloPay are separate methods, each with its own QR and its own
+brand colour: Vietcombank/VietQR green, MoMo pink (#a50064), ZaloPay blue
+(#008fe5), PayOS green (#00a75a), SePay dark teal (#035a4b). The QR images
+live in `public/qr/`: `qr-bank.png` (bank transfer — a valid static
+VietQR for the sample account), `qr-momo.png` / `qr-zalopay.png` (sample
+placeholders), `qr-payos.png` / `qr-sepay.png` (sample VietQR). Replace
 these files with your own bank/wallet QR codes before selling. Note:
 PayOS and SePay generate a fresh, real QR code per order after checkout
-(on `/checkout/pay`); the static QR beside the method is only a preview.
+(on `/checkout/pay`); the static QR in the panel is only a preview.
 
 ### Webhook URLs to register
 

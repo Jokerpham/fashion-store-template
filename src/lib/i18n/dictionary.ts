@@ -83,6 +83,7 @@ export type PaymentMethodKey =
   | "cod"
   | "bank"
   | "momo"
+  | "zalopay"
   | "payos"
   | "sepay"
   | "paypal"
@@ -94,7 +95,8 @@ export function paymentMethodKey(labelOrCode: string): PaymentMethodKey {
   if (s.includes("sepay")) return "sepay";
   if (s.includes("paypal")) return "paypal";
   if (s.includes("stripe")) return "stripe";
-  if (s.includes("momo") || s.includes("zalopay")) return "momo";
+  if (s.includes("momo")) return "momo";
+  if (s.includes("zalopay")) return "zalopay";
   if (s.includes("chuyển khoản") || s.includes("bank")) return "bank";
   return "cod";
 }

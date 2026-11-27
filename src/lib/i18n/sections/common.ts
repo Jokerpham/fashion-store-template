@@ -81,7 +81,8 @@ export const common: { vi: Dictionary; en: Dictionary } = {
     payment: {
       cod: "COD - Thanh toán khi nhận hàng",
       bank: "Chuyển khoản ngân hàng",
-      momo: "Ví MoMo / ZaloPay",
+      momo: "Ví MoMo",
+      zalopay: "Ví ZaloPay",
       payos: "PayOS — VietQR / ATM / ví",
       sepay: "SePay — VietQR chuyển khoản",
       paypal: "PayPal (USD)",
@@ -165,7 +166,8 @@ export const common: { vi: Dictionary; en: Dictionary } = {
     payment: {
       cod: "COD - Cash on delivery",
       bank: "Bank transfer",
-      momo: "MoMo / ZaloPay wallet",
+      momo: "MoMo wallet",
+      zalopay: "ZaloPay wallet",
       payos: "PayOS — VietQR / ATM / e-wallet",
       sepay: "SePay — VietQR bank transfer",
       paypal: "PayPal (USD)",
