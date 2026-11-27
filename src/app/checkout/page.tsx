@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { formatPrice } from "@/lib/format";
 import { pushOrder, newId } from "@/lib/store";
@@ -24,6 +25,12 @@ export default function CheckoutPage(){
   }, []);
 
   const usd = cfg ? Math.round((total / cfg.paypalRate) * 100) / 100 : null;
+  // Tạm tính + phí ship (cùng công thức với /api/orders: phí ship =
+  // max(0, total - subtotal)). Giỏ hàng hiện chưa tính phí ship riêng
+  // nên total = subtotal, phí ship luôn 0 → hiển thị "Miễn phí vận
+  // chuyển"; nếu sau này có phí, dòng này hiện đúng số tiền.
+  const subtotal = items.reduce((s, i) => s + i.product.price * i.qty, 0);
+  const shippingFee = Math.max(0, total - subtotal);
   const usdStr = usd !== null ? `$${usd.toFixed(2)}` : "";
   const rateStr = cfg ? cfg.paypalRate.toLocaleString(localeForLang(lang)) : "";
   const isOnline = ONLINE.includes(method);
@@ -33,22 +40,15 @@ export default function CheckoutPage(){
   // Mã QR mẫu cho từng phương thức thanh toán (xem README, mục
   // "Payments" — chủ shop thay các file này bằng mã QR thật của mình).
   // Mã QR KHÔNG nằm trong khung phương thức: khi khách chọn một phương
-  // thức có QR, bảng "quét để thanh toán" hiện ở CỘT PHẢI, phía trên
-  // tóm tắt đơn hàng (kiểu web sofa), hạ xuống ngang với mục PAYMENT
-  // METHOD để khỏi trôi khỏi màn hình khi cuộn xuống xem các phương
-  // thức. Bảng dùng đúng màu thương hiệu của từng bên: xanh
-  // Vietcombank/VietQR, hồng MoMo, xanh dương ZaloPay, xanh lá PayOS,
-  // xanh ngọc đậm SePay.
+  // thức có QR, bảng "quét để thanh toán" hiện ở CỘT PHẢI, phía dưới
+  // tóm tắt đơn hàng (kiểu web sofa), bên cạnh và ngoài các ô phương
+  // thức. Tóm tắt đơn hàng (ảnh + tên + số lượng + giá từng món, phí
+  // vận chuyển, tổng tiền) nằm TRÊN CÙNG cột phải, ngang với ô thông
+  // tin khách hàng bên trái. Bảng QR không còn khoảng đệm trên
+  // (md:mt-[400px] của v13/v14 đã bỏ) vì tóm tắt đơn hàng đã đẩy nó
+  // xuống ngang tầm các phương thức.
   // PayOS/SePay tạo mã QR thật theo từng đơn sau khi đặt hàng; mã ở đây
   // chỉ để minh họa.
-  // Độ hạ của bảng: từ đầu cột trái tới chữ "PAYMENT METHOD" là
-  // h1 32px + 5 khoảng space-y-4 (80px) + 4 ô nhập × 50px (200px) +
-  // pt-2 của tiêu đề (8px) = 320px, cộng thêm 80px để mép trên bảng
-  // ngang với các ô phương thức đầu tiên (thay vì ngang với tiêu đề)
-  // và toàn bộ bảng (tiêu đề + mã QR + ghi chú) lọt trong một màn
-  // hình khi cuộn xuống xem các phương thức = 400px. Chỉ áp từ md
-  // trở lên (trên mobile một cột, bảng nằm sau form nên không cần
-  // khoảng đệm).
   const QR: Partial<Record<Method, string>> = {
     bank: "/qr/qr-bank.png",
     momo: "/qr/qr-momo.png",
@@ -121,8 +121,41 @@ export default function CheckoutPage(){
       <button disabled={busy} className="bg-[#23232c] text-white w-full py-4 tracking-widest text-sm font-heading disabled:opacity-60">{busy ? t("checkout.processing") : t("checkout.placeOrder")}</button>
     </form>
     <div>
+      <h2 className="font-semibold tracking-widest">{t("checkout.orderTitle")}</h2>
+      {items.length === 0 ? (
+        <div className="mt-5 border border-dashed border-neutral-300 px-4 py-6 text-center">
+          <p className="text-sm text-neutral-500">{t("cart.empty")}</p>
+          <Link href="/shop" className="mt-4 inline-block bg-[#23232c] px-5 py-2.5 text-sm tracking-widest text-white font-heading">{t("shop.continueShopping")}</Link>
+        </div>
+      ) : (
+        <div className="space-y-4 mt-5">{items.map((i, idx) => (
+          <div key={idx} className="flex gap-3">
+            {i.product.image ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={i.product.image} alt={productName(i.product, lang)} className="h-20 w-16 shrink-0 bg-neutral-100 object-cover" />
+            ) : (
+              <div className="flex h-20 w-16 shrink-0 items-center justify-center bg-neutral-100 text-xs text-neutral-400">—</div>
+            )}
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium">{productName(i.product, lang)}</p>
+              <p className="mt-0.5 text-xs text-neutral-500">{i.size} · {i.qty} × {formatPrice(i.product.price)}</p>
+            </div>
+            <span className="shrink-0 text-sm font-medium">{formatPrice(i.product.price * i.qty)}</span>
+          </div>
+        ))}</div>
+      )}
+      {items.length > 0 && (
+        <>
+          <div className="mt-6 space-y-2 border-t pt-4 text-sm">
+            <div className="flex justify-between"><span className="text-neutral-500">{t("checkout.subtotal")}</span><span>{formatPrice(subtotal)}</span></div>
+            <div className="flex justify-between"><span className="text-neutral-500">{t("checkout.shippingFee")}</span><span>{shippingFee === 0 ? t("checkout.freeShipping") : formatPrice(shippingFee)}</span></div>
+          </div>
+          <div className="border-t mt-4 pt-4 flex justify-between font-semibold"><span>{t("cart.total")}</span><span>{formatPrice(total)}</span></div>
+        </>
+      )}
+      {isOnline && usd !== null && method === "paypal" && <p className="text-sm text-neutral-500 mt-2">{t("checkout.paypalUsdNote", { usd: usdStr, rate: rateStr })}</p>}
       {selQr && selQrColor && (
-        <div className="rounded-xl border px-5 py-5 text-center mb-8 md:mt-[400px]" style={{ backgroundColor: selQrColor.bg, borderColor: selQrColor.border }}>
+        <div className="rounded-xl border px-5 py-5 text-center mt-8" style={{ backgroundColor: selQrColor.bg, borderColor: selQrColor.border }}>
           <p className="font-semibold" style={{ color: selQrColor.title }}>{qrLabel[method]}</p>
           <div className="relative mx-auto mt-4 h-56 w-56 rounded-lg bg-white p-3">
             <img src={selQr} alt="" className="h-full w-full object-contain" />
@@ -134,10 +167,6 @@ export default function CheckoutPage(){
           {qrHint[method] && <p className="mt-4 text-sm text-neutral-600">{qrHint[method]}</p>}
         </div>
       )}
-      <h2 className="font-semibold tracking-widest">{t("checkout.orderTitle")}</h2>
-      <div className="space-y-3 mt-5">{items.map((i,idx)=><div key={idx} className="flex justify-between text-sm"><span>{productName(i.product, lang)} × {i.qty} ({i.size})</span><span>{formatPrice(i.product.price*i.qty)}</span></div>)}</div>
-      <div className="border-t mt-6 pt-4 flex justify-between font-semibold"><span>{t("cart.total")}</span><span>{formatPrice(total)}</span></div>
-      {isOnline && usd !== null && method === "paypal" && <p className="text-sm text-neutral-500 mt-2">{t("checkout.paypalUsdNote", { usd: usdStr, rate: rateStr })}</p>}
     </div>
   </div>);
 }

@@ -85,6 +85,9 @@ export const shop: { vi: Dictionary; en: Dictionary } = {
       noPaymentLink: "Không nhận được link thanh toán",
       processing: "ĐANG XỬ LÝ...",
       placeOrder: "ĐẶT HÀNG",
+      subtotal: "Tạm tính",
+      shippingFee: "Phí vận chuyển",
+      freeShipping: "Miễn phí vận chuyển",
       successTitle: "Đặt hàng thành công 🎉",
       successText:
         "Cảm ơn bạn đã mua sắm tại Fashion Store. Đơn hàng sẽ được xác nhận qua email / điện thoại.",
@@ -337,6 +340,9 @@ export const shop: { vi: Dictionary; en: Dictionary } = {
       noPaymentLink: "No payment link received",
       processing: "PROCESSING...",
       placeOrder: "PLACE ORDER",
+      subtotal: "Subtotal",
+      shippingFee: "Shipping fee",
+      freeShipping: "Free shipping",
       successTitle: "Order placed 🎉",
       successText:
         "Thank you for shopping at Fashion Store. Your order will be confirmed by email / phone.",
