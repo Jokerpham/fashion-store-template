@@ -46,7 +46,7 @@ export const LANGUAGES: LanguageInfo[] = [
   { code: "dv", name: "Divehi", native: "ދިވެހި", dir: "rtl", flag: "mv" },
   { code: "doi", name: "Dogri", native: "डोगरी", dir: "ltr", flag: "in" },
   { code: "nl", name: "Dutch", native: "Nederlands", dir: "ltr", flag: "nl" },
-  { code: "en", name: "English", native: "English", dir: "ltr", flag: "us" },
+  { code: "en", name: "English", native: "English", dir: "ltr", flag: "gb" },
   { code: "eo", name: "Esperanto", native: "Esperanto", dir: "ltr", flag: "globe" },
   { code: "et", name: "Estonian", native: "eesti", dir: "ltr", flag: "ee" },
   { code: "ee", name: "Ewe", native: "eʋegbe", dir: "ltr", flag: "gh" },
