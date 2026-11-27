@@ -34,11 +34,17 @@ export default function CheckoutPage(){
   // "Payments" — chủ shop thay các file này bằng mã QR thật của mình).
   // Mã QR KHÔNG nằm trong khung phương thức: khi khách chọn một phương
   // thức có QR, bảng "quét để thanh toán" hiện ở CỘT PHẢI, phía trên
-  // tóm tắt đơn hàng (kiểu web sofa). Bảng dùng đúng màu thương hiệu
-  // của từng bên: xanh Vietcombank/VietQR, hồng MoMo, xanh dương
-  // ZaloPay, xanh lá PayOS, xanh ngọc đậm SePay.
+  // tóm tắt đơn hàng (kiểu web sofa), hạ xuống ngang với mục PAYMENT
+  // METHOD để khỏi trôi khỏi màn hình khi cuộn xuống xem các phương
+  // thức. Bảng dùng đúng màu thương hiệu của từng bên: xanh
+  // Vietcombank/VietQR, hồng MoMo, xanh dương ZaloPay, xanh lá PayOS,
+  // xanh ngọc đậm SePay.
   // PayOS/SePay tạo mã QR thật theo từng đơn sau khi đặt hàng; mã ở đây
   // chỉ để minh họa.
+  // Độ hạ của bảng: từ đầu cột trái tới chữ "PAYMENT METHOD" là
+  // h1 32px + 5 khoảng space-y-4 (80px) + 4 ô nhập × 50px (200px) +
+  // pt-2 của tiêu đề (8px) = 320px. Chỉ áp từ md trở lên (trên mobile
+  // một cột, bảng nằm sau form nên không cần khoảng đệm).
   const QR: Partial<Record<Method, string>> = {
     bank: "/qr/qr-bank.png",
     momo: "/qr/qr-momo.png",
@@ -112,7 +118,7 @@ export default function CheckoutPage(){
     </form>
     <div>
       {selQr && selQrColor && (
-        <div className="rounded-xl border px-5 py-5 text-center mb-8" style={{ backgroundColor: selQrColor.bg, borderColor: selQrColor.border }}>
+        <div className="rounded-xl border px-5 py-5 text-center mb-8 md:mt-[320px]" style={{ backgroundColor: selQrColor.bg, borderColor: selQrColor.border }}>
           <p className="font-semibold" style={{ color: selQrColor.title }}>{qrLabel[method]}</p>
           <div className="relative mx-auto mt-4 h-56 w-56 rounded-lg bg-white p-3">
             <img src={selQr} alt="" className="h-full w-full object-contain" />

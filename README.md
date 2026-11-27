@@ -208,8 +208,9 @@ moving. Set `PAYMENTS_SIMULATION=false` and paste real keys to go live.
 
 When the customer picks a QR-capable method on the checkout page (bank
 transfer, MoMo, ZaloPay, PayOS or SePay), a "scan to pay" QR panel appears
-at the top of the right column, above the order summary (sofa-site style).
-MoMo and ZaloPay are separate methods, each with its own QR and its own
+in the right column, above the order summary (sofa-site style), lowered so
+its top edge sits level with the payment-methods section instead of the top
+of the page. MoMo and ZaloPay are separate methods, each with its own QR and its own
 brand colour: Vietcombank/VietQR green, MoMo pink (#a50064), ZaloPay blue
 (#008fe5), PayOS green (#00a75a), SePay dark teal (#035a4b). The QR images
 live in `public/qr/`: `qr-bank.png` (bank transfer — a valid static
