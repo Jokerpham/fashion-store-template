@@ -204,6 +204,16 @@ moving. Set `PAYMENTS_SIMULATION=false` and paste real keys to go live.
   `https://fashion-store-1h4.pages.dev`) so the gateways can redirect
   back to the shop.
 
+### Payment QR codes
+
+Each QR-capable method on the checkout page shows a QR code beside it
+(files in `public/qr/`): `qr-bank.png` (bank transfer — a valid static
+VietQR for the sample account), `qr-momo.png` (MoMo/ZaloPay — sample
+placeholder), `qr-payos.png` / `qr-sepay.png` (sample VietQR). Replace
+these files with your own bank/wallet QR codes before selling. Note:
+PayOS and SePay generate a fresh, real QR code per order after checkout
+(on `/checkout/pay`); the static QR beside the method is only a preview.
+
 ### Webhook URLs to register
 
 Replace `<domain>` with your public domain:

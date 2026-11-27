@@ -30,13 +30,25 @@ export default function CheckoutPage(){
   const methodConfigured = cfg ? cfg.methods[method] !== false : true;
   const showSimNote = isOnline && cfg && (cfg.simulation || !methodConfigured);
 
+  // Mã QR mẫu hiển thị bên cạnh từng phương thức thanh toán (xem README,
+  // mục "Payments" — chủ shop thay các file này bằng mã QR thật của mình).
+  // PayOS/SePay tạo mã QR thật theo từng đơn sau khi đặt hàng; mã ở đây
+  // chỉ để minh họa.
+  const QR: Partial<Record<Method, string>> = {
+    bank: "/qr/qr-bank.png",
+    momo: "/qr/qr-momo.png",
+    payos: "/qr/qr-payos.png",
+    sepay: "/qr/qr-sepay.png",
+  };
+
   const radio = (m: Method, label: string, hint?: string) => (
     <label key={m} className={`flex items-start gap-3 border px-4 py-3 cursor-pointer ${method === m ? "border-black bg-neutral-50" : "border-neutral-200"}`}>
       <input type="radio" name="payment" checked={method === m} onChange={() => setMethod(m)} className="mt-1 accent-black" />
-      <span>
+      <span className="min-w-0 flex-1">
         <span className="block text-sm font-medium">{label}</span>
         {hint && <span className="block text-xs text-neutral-500 mt-0.5">{hint}</span>}
       </span>
+      {QR[m] && <img src={QR[m]} alt="" className="h-20 w-20 shrink-0 rounded border border-neutral-200 bg-white object-contain" />}
     </label>
   );
 
