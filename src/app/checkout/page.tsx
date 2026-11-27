@@ -43,8 +43,12 @@ export default function CheckoutPage(){
   // chỉ để minh họa.
   // Độ hạ của bảng: từ đầu cột trái tới chữ "PAYMENT METHOD" là
   // h1 32px + 5 khoảng space-y-4 (80px) + 4 ô nhập × 50px (200px) +
-  // pt-2 của tiêu đề (8px) = 320px. Chỉ áp từ md trở lên (trên mobile
-  // một cột, bảng nằm sau form nên không cần khoảng đệm).
+  // pt-2 của tiêu đề (8px) = 320px, cộng thêm 80px để mép trên bảng
+  // ngang với các ô phương thức đầu tiên (thay vì ngang với tiêu đề)
+  // và toàn bộ bảng (tiêu đề + mã QR + ghi chú) lọt trong một màn
+  // hình khi cuộn xuống xem các phương thức = 400px. Chỉ áp từ md
+  // trở lên (trên mobile một cột, bảng nằm sau form nên không cần
+  // khoảng đệm).
   const QR: Partial<Record<Method, string>> = {
     bank: "/qr/qr-bank.png",
     momo: "/qr/qr-momo.png",
@@ -118,7 +122,7 @@ export default function CheckoutPage(){
     </form>
     <div>
       {selQr && selQrColor && (
-        <div className="rounded-xl border px-5 py-5 text-center mb-8 md:mt-[320px]" style={{ backgroundColor: selQrColor.bg, borderColor: selQrColor.border }}>
+        <div className="rounded-xl border px-5 py-5 text-center mb-8 md:mt-[400px]" style={{ backgroundColor: selQrColor.bg, borderColor: selQrColor.border }}>
           <p className="font-semibold" style={{ color: selQrColor.title }}>{qrLabel[method]}</p>
           <div className="relative mx-auto mt-4 h-56 w-56 rounded-lg bg-white p-3">
             <img src={selQr} alt="" className="h-full w-full object-contain" />
